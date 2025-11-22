@@ -90,8 +90,7 @@ __pypackages__/
 .history
 
 # Exclude migrations folder
-# **/migrations/**
-# !**/migrations/__init__.py
+**/migrations/**
 
 # Environments
 .env
@@ -110,3 +109,6 @@ venv.bak/
 
 /bulkdownlode
 /failed_emails
+
+.vscode
+
