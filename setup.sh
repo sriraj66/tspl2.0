@@ -9,3 +9,5 @@ sudo apt install docker-ce docker-ce-cli containerd.io
 docker --version
 
 sudo usermod -aG docker $USER
+
+newgrp docker
