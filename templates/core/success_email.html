@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Completed</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #f4f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .email-container {
+            max-width: 600px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+        }
+
+        .email-header {
+            margin-bottom: 20px;
+        }
+
+        .email-header h1 {
+            font-size: 24px;
+            color: #4caf50;
+            margin-bottom: 10px;
+        }
+
+        .email-header p {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .email-details {
+            text-align: left;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .email-details p {
+            font-size: 14px;
+            color: #333;
+            margin: 8px 0;
+        }
+
+        .email-details b {
+            color: #000;
+        }
+
+        .email-details .zone {
+            color: #4caf50;
+        }
+
+        .email-footer {
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #fff;
+            background: #4caf50;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .email-container {
+                padding: 20px;
+            }
+
+            .email-header h1 {
+                font-size: 20px;
+            }
+
+            .btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>Registration Successful!</h1>
+            <p>Your registration has been completed successfully.</p>
+        </div>
+        <div class="email-details">
+            <p>Transaction ID: <b>#{{ id }}</b></p>
+            <p>Register ID: <b>{{ reg_id }}</b></p>
+            <p>Amount Paid: <b>&#8377; {{ amount }}</b></p>
+            <p>Zone: <b class="zone">{{ zone }}</b></p>
+        </div>
+        <div class="email-footer">
+            <a href="https://tntenniscricket.in" class="btn">Visit Website</a>
+        </div>
+    </div>
+</body>
+
+</html>

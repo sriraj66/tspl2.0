@@ -1,0 +1,85 @@
+{% extends '_.html' %}
+
+{% load static %}
+{% block main %}
+<section class="news-events" style="background: #fff !important;">
+    <div class="container">
+        <h6 class="main-subtitle text-center">Events</h6>
+        <h5 class="main-title  text-center">News and Events</h5>
+
+        <div class="mt-5">
+            <div class="row gy-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="news-card-big">
+                        <div class="img-box">
+                            <img src="{% static 'assets/images/gallery/img-0.webp' %}" alt="">
+                            <div class="card-content">
+                                <!-- <p class="card-text">June 19, 2023</p> -->
+                                <h5 class="card-title">Tennis Ball Cricket
+                                </h5>
+                                <p class="read-link"><a href="{% url 'tennies_ball_cricket' %}">Read More</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="news-card-big">
+                        <div class="img-box">
+                            <img src="{% static 'assets/images/gallery/img-1.webp' %}" alt="">
+                            <div class="card-content">
+                                <!-- <p class="card-text">Nov 8, 2023</p> -->
+                                <h5 class="card-title">Who Can Register
+                                </h5>
+                                <p class="read-link"><a href="{% url 'who_can_register' %}">Read More</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="news-card-big">
+                        <div class="img-box">
+                            <img src="{% static 'assets/images/gallery/img-8.webp' %}" alt="">
+                            <div class="card-content">
+                                <!-- <p class="card-text">Aug 24, 2023</p> -->
+                                <h5 class="card-title">Indian Street Premier League (ISPL) 2025: Teams & Players Revealed
+                                </h5>
+                                <p class="read-link"><a href="{% url 'ispl_player_revealed' %}">Read More</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="news-card-big">
+                        <div class="img-box">
+                            <img src="{% static 'assets/images/gallery/img-16.webp' %}" alt="">
+                            <div class="card-content">
+                                <!-- <p class="card-text">Sep 11, 2023</p> -->
+                                <h5 class="card-title">Own a TSPL Franchise Team
+                                </h5>
+                                <p class="read-link"><a href="{% url 'own_tspl_franchise' %}">Read More</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="news-card-big">
+                        <div class="img-box">
+                            <img src="{% static 'assets/images/gallery/img-18.webp' %}" alt="">
+                            <div class="card-content">
+                                <!-- <p class="card-text">Dec 1, 2023</p> -->
+                                <h5 class="card-title">TSPL-T10 AUCTIONS 2025
+                                </h5>
+                                <p class="read-link"><a href="{% url 'tspl_t10_action' %}">Read More</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+               
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

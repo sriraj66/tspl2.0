@@ -1,0 +1,115 @@
+{% extends '_.html' %}
+{% load static %}
+
+{% block main %}
+<div class="container mt-5">
+    <h2 class="text-center fw-bold mb-4">Player Selection Results</h2>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3" id="playerTabs">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#selected">Selected</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#notSelected">Not Selected</button>
+        </li>
+    </ul>
+
+    <!-- Search Bar -->
+    <div class="mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search by Name or Reg ID..." onkeyup="searchTable()">
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Selected Players Table -->
+        <div class="tab-pane fade show active" id="selected">
+            <table class="table table-striped table-bordered">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Reg ID</th>
+                        <th>Name</th>
+                        <th>Father’s Name</th>
+                        <th>Zone</th>
+                        <th>District</th>
+                        <th>Role</th>
+                        <th>Points</th>
+                        <th>Selected</th>
+                    </tr>
+                </thead>
+                <tbody id="selectedTable">
+                    {% for player in selected %}
+                    <tr>
+                        <td>{{ player.reg_id }}</td>
+                        <td>{{ player.player_name }}</td>
+                        <td>{{ player.father_name }}</td>
+                        <td>{{ player.zone }}</td>
+                        <td>{{ player.district }}</td>
+                        <td>{{ player.role }}</td>
+                        <td>{{ player.points }}</td>
+                        <td class="text-success fw-bold">✔ Selected</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Not Selected Players Table -->
+        <div class="tab-pane fade" id="notSelected">
+            <table class="table table-striped table-bordered">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>Reg ID</th>
+                        <th>Name</th>
+                        <th>Father’s Name</th>
+                        <th>Zone</th>
+                        <th>District</th>
+                        <th>Role</th>
+                        <th>Points</th>
+                        <th>Selected</th>
+                    </tr>
+                </thead>
+                <tbody id="notSelectedTable">
+                    {% for player in notSelected %}
+                    <tr>
+                        <td>{{ player.reg_id }}</td>
+                        <td>{{ player.player_name }}</td>
+                        <td>{{ player.father_name }}</td>
+                        <td>{{ player.zone }}</td>
+                        <td>{{ player.district }}</td>
+                        <td>{{ player.role }}</td>
+                        <td>{{ player.points }}</td>
+                        <td class="text-danger fw-bold">✘ Not Selected</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Search Functionality -->
+<script>
+    function searchTable() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let tables = ["selectedTable", "notSelectedTable"];
+        
+        tables.forEach(tableId => {
+            let table = document.getElementById(tableId);
+            let rows = table.getElementsByTagName("tr");
+
+            for (let i = 0; i < rows.length; i++) {
+                let cells = rows[i].getElementsByTagName("td");
+                if (cells.length > 0) {
+                    let text = "";
+                    for (let cell of cells) {
+                        text += cell.textContent.toLowerCase() + " ";
+                    }
+                    rows[i].style.display = text.includes(input) ? "" : "none";
+                }
+            }
+        });
+    }
+</script>
+
+{% endblock %}

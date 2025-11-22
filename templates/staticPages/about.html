@@ -1,0 +1,57 @@
+{% extends '_.html' %}
+
+{% load static %}
+{% block main %}
+<section class="about-detail counter-section">
+    <h2 class="vertical-text">TSPL</h2>
+    <div class="container">
+        <div class="row gy-5 justify-content-center align-items-center">
+            <div class="col-lg-6 col-md-8 order-1 order-lg-0">
+                <img src="{% static 'assets/images/rb_46231.png' %}" width="100%" alt="">
+            </div>
+            <div class=" col-lg-6 col-md-12 order-0 order-lg-1">
+                <h5 class="main-subtitle wow fadeInUp" data-wow-delay="0.3s">About Company</h5>
+
+                <h4 class="main-title wow fadeInUp" data-wow-delay="0.4s">Transforming Tamilnadu Tennisball Cricket: The Rise
+                    of TSPL<b style="font-weight: 600; font-size:large;">(Filtering The Best Players And Teams in TN)</b></h4>
+                    <p class="about-text wow fadeInUp" data-wow-delay="0.5s">Tamizhan Street Premier League (TSPL) is a premier sports organization committed to advancing Tennisball Cricket throughout Tamilnadu, TSPL aims to create a thriving platform for aspiring Players,providing avenues for skill development, competitive play, and community engagement.<b>Tamizhan Street Premier League (TSPL),forming a team for our TN to compete at the Pan India level.</b>The Registration can done Allover from (TN)Tamil Nadu <b style="color: rgb(51, 49, 49);">NOTE:Only For (TN)Tamil Nadu Players.</b> TSPL is dedicated to enriching Tamilnadu's Cricket culture.</p>
+                    <p class="about-text wow fadeInUp" data-wow-delay="0.6s">By promoting inclusivity and collaboration, TSPL creates opportunities for players, coaches, and officials alike. Each season welcomes new talents, enabling diverse communities to come together under the banner of Cricket.</p>
+                <p class="mt-4 banner-btn wow fadeInUp" data-wow-delay="0.7s">
+                    <a href="{% url 'register_form' %}" class="fancy-button w-100 text-center">Register</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="about-detail counter-section">
+    <img src="{% static 'assets/images/about-shape-4.webp' %}" class="pencil-img" alt="">
+    <div class="container">
+        <div class="row gy-5 justify-content-center align-items-center">
+
+            <div class=" col-lg-6 col-md-12 ">
+
+                <h4 class="main-title wow fadeInUp" data-wow-delay="0.4s">Empowering Local Talent: The TSPL Journey
+                    Begins</h4>
+                <p class="about-text wow fadeInUp" data-wow-delay="0.5s">TSPL's commitment to excellence extends beyond the pitch, fostering an environment where emerging talent and seasoned players unite. With a focus on professionalism, integrity, and sportsmanship, TSPL serves as a beacon for tennisball Cricket enthusiasts. By blending grassroots development with large-scale tournaments, TSPL bridges the gap between recreational play and competitive Cricket, offering a pathway for Tamilnadu Player's to shine on a larger stage.</p>
+                <p class="about-text wow fadeInUp" data-wow-delay="0.6s">At the heart of TSPL Our Vision to inspire the youth and celebrate the spirit of Cricket. Through structured leagues, mentoring programs, and opportunities to compete at elite levels, TSPL empowers players to reach their full potential. The league's innovative approach, including cutting-edge facilities, fair play policies, and state-wide representation, positions it as a catalyst for revolutionizing tennisball Cricket in Tamilnadu.
+                </p>
+                <p class="about-text wow fadeInUp" data-wow-delay="0.7s">TSPL has rapidly evolved into a landmark event, capturing the imagination of Cricket fans across Tamilnadu. Its dynamic format, combined with thrilling matches, makes it a spectacle like no other.
+                </p>
+            </div>
+            <div class="col-lg-6 col-md-8 ">
+                <img src="{% static 'assets/images/about.png' %}" width="100%" alt="">
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<amp-ad width="100vw" height="320"
+     type="adsense"
+     data-ad-client="ca-pub-9617738770270233"
+     data-ad-slot="6587935594"
+     data-auto-format="mcrspv"
+     data-full-width="">
+  <div overflow=""></div>
+</amp-ad>
+{% endblock %}

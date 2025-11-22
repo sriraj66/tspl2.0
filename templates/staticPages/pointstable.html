@@ -1,0 +1,33 @@
+{% extends '_.html' %}
+{% load static %}
+{% block main %}
+
+<style>
+    #points_table{
+        width: 100%;
+        min-height: 720px;
+    }
+</style>
+
+<iframe id="points_table" src="https://ndsports.in/selection" onload="performAction" frameborder="1"></iframe>
+
+
+<script>
+    function performAction() {
+        const iframe = document.getElementById('points_table');
+        const iframeDocument = iframe.contentWindow.document;
+
+        // document.querySelector('body > div#wrapper:nth-child(1) > div#content-wrapper.d-flex.flex-column:nth-child(2) > footer.bg-white.sticky-footer:nth-child(2) > div.container.my-auto.d-flex.justify-content-center.align-items-center > div.text-center.my-auto.copyright:nth-child(1) > span').textContent = "Hello";
+
+        iframe.onload = () => {
+            const statsTab = iframeDocument.querySelector('#stats_tab');
+            if (statsTab) {
+                statsTab.click();
+            } else {
+                console.log('The #stats_tab element was not found.');
+            }
+        };
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends '_.html' %}
+{% load static %}
+{% block main %}
+
+<style>
+    body {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    #container-pay {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .payment-box {
+        width: 100%;
+        max-width: 550px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(18px);
+        padding: 2rem;
+        border-radius: 1.2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    .payment-title {
+        font-size: 1.7rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    table {
+        width: 100%;
+        margin-top: 1rem;
+        border-collapse: collapse;
+        color: white;
+    }
+
+    th,
+    td {
+        padding: 12px;
+        text-align: left;
+    }
+
+    th {
+        background: rgba(255, 255, 255, 0.15);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        border-radius: 6px;
+    }
+
+    td {
+        background: rgba(255, 255, 255, 0.08);
+        font-weight: 500;
+    }
+
+    .pay-btn {
+        width: 100%;
+        background: #3b82f6;
+        border: none;
+        padding: 0.85rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        margin-top: 1.4rem;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .pay-btn:hover {
+        background: #2563eb;
+        box-shadow: 0 0 16px rgba(37, 99, 235, 0.6);
+    }
+
+    .loader {
+        display: none;
+        text-align: center;
+        margin-top: 10px;
+        color: #93c5fd;
+        animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.6;
+        }
+    }
+</style>
+
+
+<div id="container-pay">
+    <div class="payment-box">
+
+        <div class="payment-title">Complete Your Payment</div>
+
+        <!-- Order Summary Table -->
+        <table>
+            <tr>
+                <th>Receipt No.</th>
+                <td>{{ payment.recpt_id }}</td>
+            </tr>
+            <tr>
+                <th>Season</th>
+                <td>{{ payment.registration.season.title }}</td>
+            </tr>
+            <tr>
+                <th>Amount</th>
+                <td>₹ {{ payment.amount }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>PENDING</td>
+            </tr>
+        </table>
+
+        <!-- Pay Button -->
+        <button class="pay-btn" id="pay-btn">Pay Securely</button>
+
+        <!-- Loading text -->
+        <div class="loader" id="loading-text">Processing… Do not refresh</div>
+    </div>
+</div>
+
+
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    var options = {
+        key: "{{ razorpay_key }}",
+        amount: "{{ payment.amount }}",
+        currency: "{{ payment.currency }}",
+        name: "{{season.title}}",
+        description: "Player Registration Payment",
+        order_id: "{{ payment.order_id }}",
+        callback_url: "{{settings.callback_url}}/{{payment.id}}",        
+        prefill: {
+            name: "{{ user.first_name }} {{ user.last_name }}",
+            email: "{{ user.email }}",
+            contact: "{{ payment.registration.mobile }}"
+        },
+
+    };
+
+    var rzp1 = new Razorpay(options);
+    // rzp1.on("payment.failed", function (response) {
+    //     console.log("Payment failed:", response.error);
+        // window.location.href = "/payment/failed/?reason=" +
+        // encodeURIComponent(response.error.description);
+    // });
+    document.getElementById("pay-btn").onclick = function (e) {
+        document.getElementById("loading-text").style.display = "block";
+        rzp1.open();
+        e.preventDefault();
+    };
+</script>
+{% endblock %}

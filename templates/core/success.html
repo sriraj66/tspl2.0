@@ -1,0 +1,128 @@
+{% extends '_.html' %}
+{% load static %}
+{% block main %}
+
+<style>
+
+    .container {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .success-card {
+        background: white;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: #4CAF50;
+        color: white;
+        font-size: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+
+    h1 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 28px;
+    }
+
+    .message {
+        color: #666;
+        margin-bottom: 25px;
+        font-size: 16px;
+    }
+
+    .details {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+
+    .details p {
+        color: #555;
+        margin: 10px 0;
+        font-size: 14px;
+        text-align: start;
+    }
+
+    .buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .secondary {
+        background: #f8f9fa;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+
+    .secondary:hover {
+        background: #e9ecef;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 480px) {
+        .success-card {
+            padding: 30px 15px;
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 30px;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        .buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+<div class="container" style="color: whitesmoke;">
+    <div class="success-card">
+        <img class="success-icon" src="{% static 'assets/images/accept.png' %}" alt="">
+        <h1>Payment Successful!</h1>
+        <p class="message">Your registration has been completed successfully.</p>
+        <div class="details">
+            <p>Transaction ID: <b>#{{id}}</b></p>
+            <p>Register ID : <b>{{reg_id}}</b></p>
+            <p>Amount Paid: <b>₹ {{amount}}</b></p>
+            <p>Zone : <strong style="color: #4CAF50;">{{zone}}</strong> </p>
+        </div>
+        <div class="buttons">
+            <a href="{% url 'index' %}" class="btn btn-info">Go Back</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

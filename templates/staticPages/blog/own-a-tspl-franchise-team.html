@@ -1,0 +1,107 @@
+{% extends '_.html' %}
+
+{% load static %}
+{% block main %}
+<section class="news-detail">
+    <div class="container">
+        <div class="row gy-4 gx-1">
+            <div class="col-lg-8">
+                <div class="news-content">
+                    
+                    <ul class="user-list">
+                        <li><i class="bi bi-tag"></i><a href="#">TSPL League</a></li>
+                        <li><i class="bi bi-person"></i><a href="#">By Admin</a></li>
+                    </ul>
+                    <h5 class="news-title">Own a TSPL Franchise Team
+                    </h5>
+<h6 class="news-title">Are you ready to step into the world of cricketing glory?</h6>
+                    <p class="news-text">Become a team owner in the Tamilnadu Street Premier League (TSPL) and be a part of the excitement! As a team owner, you’ll have the unique opportunity to lead your own franchise, nurture talent, and compete against the best in the league. Don’t miss this chance to make your mark in the tennis ball cricketing world. Apply now to own a TSPL franchise team and embark on an unforgettable journey of sportsmanship and success!</p>
+
+<h4 class="news-title">Why Invest in TSPL-T10 Franchise Ownership?</h4>
+<h5 class="news-title">1. Thriving Cricketing Community:</h5>
+<p class="news-text">Experience the excitement of being at the heart of a thriving cricketing community. As a TSPL team owner, you’ll have the opportunity to engage with passionate tennis ball cricket enthusiasts, players, and sponsors, fostering a sense of camaraderie and belonging within the league. Join us in building a vibrant tennis ball cricketing ecosystem that celebrates the spirit of the game and creates unforgettable experiences for all involved.</p>
+
+<h5 class="news-title">2. Lucrative Revenue Streams:</h5>
+<p class="news-text">Unlock multiple revenue streams and financial opportunities with TSPL franchise ownership. From sponsorships and advertising deals to merchandise sales and ticket revenue, owning a TSPL team opens up avenues for substantial financial growth. Maximize your investment potential and capitalize on the immense popularity of tennis ball cricket by becoming a key player in the TSPL franchise network.</p>
+
+<h5 class="news-title">3. Brand Exposure and Recognition:</h5>
+<p class="news-text">Elevate your brand’s visibility and gain widespread recognition by aligning with one of the most prominent tennis ball cricket leagues in the country. TSPL-T10 offers extensive brand exposure through various marketing channels, including televised matches, digital platforms, and live events. As a team owner, you’ll benefit from heightened brand awareness and increased credibility, paving the way for enhanced business opportunities and partnerships.</p>                      
+                    
+                </div>
+            </div>
+            <div class="col-lg-4">
+                  <div class="card-list">
+                    <div class="row gy-4">
+                        <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-0.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">June 19, 2023</p> -->
+                                        <h5 class="card-title">Tennis Ball Cricket</h5>
+                                        <p class="read-link"><a href="{% url 'tennies_ball_cricket' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-1.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">Nov 8, 2023</p> -->
+                                        <h5 class="card-title">Who Can Register</h5>
+                                        <p class="read-link"><a href="{% url 'who_can_register' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-8.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">Aug 24, 2023</p> -->
+                                        <h5 class="card-title">Indian Street Premier League (ISPL) 2025: Teams & Players Revealed</h5>
+                                        <p class="read-link"><a href="{% url 'ispl_player_revealed' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-18.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">Dec 1, 2023</p> -->
+                                        <h5 class="card-title">TSPL-T10 AUCTIONS 2025</h5>
+                                        <p class="read-link"><a href="{% url 'tspl_t10_action' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

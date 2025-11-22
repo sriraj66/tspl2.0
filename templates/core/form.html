@@ -1,0 +1,78 @@
+{% extends '_.html' %}
+{% load static %}
+{% block main %}
+
+<style>
+    input,
+    select,
+    textarea {
+        margin-bottom: 20px;
+        margin-top: 4px;
+    }
+</style>
+
+<section class="register-form">
+
+    <div class="container">
+        <h5 class="register-title">
+            {{settings.current_season.title}}-{{settings.current_season.year}} Registrations</h5>
+        <ul class="register-list">
+            <li>1.<b>Trails Date :</b> {{settings.current_season.start_date}}</li>
+            <!-- <li>2.<b>Matches Date Will be updated Soon</b></li> -->
+            <li>3.<b>Team Registration fees :</b> Rs. {{settings.current_season.amount}}/-</li>
+            <li>4.<b>Franchise fees :</b> Rs. 15000/-</li>
+            <li>5.<b>Player Photo</b><br>
+                *Update New and clear Photo <br>
+                No Selfi or photo attached with trophy or any other objects not permitted<br>
+                Model as given Below<br>
+                <img style="height: 200px; width: 200px;"
+                    src="https://www.hindustantimes.com/static-content/1y/cricket-logos/players/virat-kohli.png">
+            </li>
+            <li>6.<b>ID for address Prof</b><br>
+                For the confirmation of location from which district - any fake data will be rejected directly after
+                verification</li>
+            <!--<li>Total 16 teams (on first come basis)</li>
+            <li>Will be divided by 4 groups</li>
+            <li>Each team will get at least 3 league matches to play</li>
+            <li>The top 2 teams from each group will qualify to quater finals</li>
+            <li>Central TCF Membership & Conference Registration is compulsory for all players (to be ensured by each </li>
+            <li>captain). Registration will be offered in early bird category to players.</li>
+            <li>Only Life members of TCF will be allowed to play.</li>
+            <li>Maximum number of players in a team is 16, plus team physio ,manager & coach.</li>-->
+        </ul>
+
+        <h5 class="register-subtitle text-start">
+            Last date for registration : 15th February 2025.</h5>
+        <ul class="register-list">
+            <li>Icon Players List Should Be submitted before 25th January 2025</li>
+        </ul>
+
+        <h5>To be submitted with the following details :-</h5>
+        <ul class="register-list">
+            <li>Full Name, Whatsapp Number, Email Address.</li>
+            <li>No change in the <b>ICON</b> Player if any Change to get prior permission of the organizers.
+            </li>
+            <li>Reporting Time: 30 minutes before the match time.</li>
+            <!--<li>A minimum of 9 players should be present on the ground, otherwise the opposite team will be given a walk over.</li>
+            <li>All matches will be played with 10 overs.</li>
+            <li>Min 5 Bowlers must be used.</li>-->
+        </ul>
+
+        <div class="container">
+            <h5 class="register-title">
+                Online Registration Form</h5>
+
+            <div class="text-center mt-5">
+            </div>
+            <form enctype="multipart/form-data" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="mt-4 text-end">
+                    <button type="submit" name="Register" class="fancy-button w-100">{{ button_message|default:"Proceed to Pay" }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

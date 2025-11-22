@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /paymenthandler/
+Disallow: /form/
+
+Sitemap: https://tntenniscricket.in/sitemap.xml

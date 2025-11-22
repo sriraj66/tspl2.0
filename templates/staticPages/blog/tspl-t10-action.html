@@ -1,0 +1,99 @@
+{% extends '_.html' %}
+
+{% load static %}
+{% block main %}
+<section class="news-detail">
+    <div class="container">
+        <div class="row gy-4 gx-1">
+            <div class="col-lg-8">
+                <div class="news-content">
+                    
+                    <ul class="user-list">
+                        <li><i class="bi bi-tag"></i><a href="#">TSPL League</a></li>
+                        <li><i class="bi bi-person"></i><a href="#">By Admin</a></li>
+                    </ul>
+                    <h5 class="news-title">TSPL-T10 AUCTIONS 2025
+                    </h5>
+<p class="news-text">After a successful series of trials, league  matches and Camp all over Districts of  Tamilnadu. TSPL-T10 is glad to announce that we are moving towards the next phase, i.e, the TSPL Auctions. Having seen extremely talented players and their performances in the trials and District league we have shortlisted top prospects who are now advanced for the auctions to be a part of the teams of the TSPL National League.</p>
+
+<p class="news-text">Shortlisted players for the auctions are announced on the Facebook page of Tamilnadu Street Premier League (TSPL). The TSPL Auctions will be held soon in Chennai.The auction programme will be organized in the presence of all the TSPL Team’s owners and co. You can also watch the whole auction which will be broadcasted live on the Youtube page of TSPL-T10.</p>
+                              
+                </div>
+            </div>
+            <div class="col-lg-4">
+                 <div class="card-list">
+                    <div class="row gy-4">
+                        <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-0.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">June 19, 2023</p> -->
+                                        <h5 class="card-title">Tennis Ball Cricket</h5>
+                                        <p class="read-link"><a href="{% url 'tennies_ball_cricket' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-1.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">Nov 8, 2023</p> -->
+                                        <h5 class="card-title">Who Can Register</h5>
+                                        <p class="read-link"><a href="{% url 'who_can_register' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-8.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">Aug 24, 2023</p> -->
+                                        <h5 class="card-title">Indian Street Premier League (ISPL) 2025: Teams & Players Revealed</h5>
+                                        <p class="read-link"><a href="{% url 'ispl_player_revealed' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-16.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">Sep 11, 2023</p> -->
+                                        <h5 class="card-title">Own a TSPL Franchise Team</h5>
+                                        <p class="read-link"><a href="{% url 'own_tspl_franchise' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

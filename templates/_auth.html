@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Auth{% endblock %} | TSPL</title>
+
+    <link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}" type="image/x-icon">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(360deg, #525257, #a89595);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .form {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            border: 2px solid rgb(124, 117, 117);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        h2 {
+            color: rgb(24, 23, 23);
+            text-transform: uppercase;
+            letter-spacing: 1.3px;
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            text-align: center;
+            margin-bottom: 40px;
+            margin-top: -30px;
+            padding-left: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: #13ca2b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #10790c;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .auth-link a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+
+        .logo-area {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .errorlist {
+            list-style: none;
+            background: #f44336;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 1vh;
+        }
+
+        .btn-group {
+            width: 100%;
+        }
+
+    
+        .helptext {
+            display: block;
+            font-size: 12px;
+            color: #555;
+            margin-top: -15px;
+            margin-bottom: 15px;
+        }
+
+
+        @media(max-width:600px) {
+            .auth-box {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            .btn-primary {
+                font-size: 14px;
+            }
+
+            input {
+                font-size: 12px;
+            }
+
+            .container {
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+
+<body class="form">
+
+    <div class="container">
+        <div class="auth-box">
+
+            <div class="logo-area">
+                <img src="{% static 'assets/images/logo.png' %}" style="width:230px;height:200px;">
+            </div>
+
+            <h2>{% block heading %}{% endblock %}</h2>
+
+            {% block content %}
+            <!-- Auth content goes here (forms, links, etc.) -->
+            {% endblock %}
+
+        </div>
+    </div>
+
+</body>
+
+</html>

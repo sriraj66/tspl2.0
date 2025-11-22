@@ -1,0 +1,533 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- SEO -->
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Tamil Nadu Tennisball Cricket League",
+        "url": "https://tntenniscricket.com",
+        "logo": "https://tntenniscricket.com{% static 'assets/images/logo.png' %}",
+        "description": "The Tamil Nadu Tennisball Cricket League promotes tennisball cricket across Tamil Nadu and provides opportunities for players to compete and showcase their talent.",
+        "contactPoint": {
+        "@type": "About",
+        "telephone": "+91 8675071671",
+        "contactType": "Organizer",
+        "areaServed": "IN",
+        "availableLanguage": "English, Tamil"
+        },
+        "mainEntity": [
+            {
+            "@type": "Question",
+            "name": "What is the Tamil Nadu Tennisball Cricket League?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The Tamil Nadu Tennisball Cricket League is a league that promotes tennisball cricket across Tamil Nadu."
+            }
+            },
+            {
+            "@type": "Question",
+            "name": "How can I join the league?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "You can join by visiting our official website and signing up then Follow out Social Handles for more information."
+            }
+            }
+        ],
+        "itemListElement": [
+            {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://tntenniscricket.in"
+            },
+            {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "About Us",
+            "item": "https://tntenniscricket.in{%  url 'about' %}"
+            },
+        ]
+    }
+    
+    </script>
+
+    <!-- Preload Favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}" type="image/x-icon">
+    <!-- Preload CSS Files -->
+    <link rel="preload" href="{% static 'assets/css/bootstrap-icons.css' %}" as="style">
+    <link rel="preload" href="{% static 'assets/css/min.css' %}" as="style">
+    <link rel="preload" href="{% static 'assets/css/owl.carousel.min.css' %}" as="style">
+    <link rel="preload" href="{% static 'assets/css/bootstrap.min.css' %}" as="style">
+    <link rel="preload" href="{% static 'assets/css/flaticon.css' %}" as="style">
+    <link rel="preload" href="{% static 'assets/css/animate.css' %}" as="style">
+    <link rel="preload" href="{% static 'assets/css/fancybox.min.css' %}" as="style">
+    <link rel="preload" href="{% static 'assets/css/meanmenu.css' %}" as="style">
+    <link rel="preload" href="{% static 'assets/css/owl.theme.default.min.css' %}" as="style">
+    <link rel="preload" href="{% static 'assets/css/style.css' %}" as="style">
+
+    <title>Tamizhan Street Premier League (TSPL) - Empowering Tamil Nadu Tennisball Cricket</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="description"
+        content="TSPL: Transforming Tennisball Cricket in Tamil Nadu. Register now to be a part of the premier league, fostering local talent and competitive cricket.">
+    <meta name="keywords"
+        content="TSPL, Tamil Nadu Cricket, Tennisball Cricket, Cricket League Tamil Nadu, Tamizhan Street Premier League, Cricket Registration Tamil Nadu">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://tntenniscricket.in/">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="About Us - Tamil Nadu Tennisball Cricket League">
+    <meta property="og:description"
+        content="The Tamil Nadu Tennisball Cricket League is dedicated to the promotion of tennisball cricket in Tamil Nadu.">
+    <meta property="og:image" content="https://tntenniscricket.in{% static 'assets/images/logo.png' %}">
+    <meta property="og:url" content="https://tntenniscricket.in{% url 'about' %}">
+
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:title" content="About Us - Tamil Nadu Tennisball Cricket League">
+    <meta name="twitter:description"
+        content="The Tamil Nadu Tennisball Cricket League is dedicated to the promotion of tennisball cricket in Tamil Nadu.">
+    <meta name="twitter:image" content="https://tntenniscricket.in{% static 'assets/images/logo.png' %}">
+    <meta name="twitter:url" content="https://x.com/tntenniscricket">
+
+
+
+    <!-- Actual CSS Links -->
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/fancybox.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/meanmenu.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+
+
+    <style>
+        .alert-error {
+            background-color: rgb(255, 0, 0);
+            color: white;
+        }
+
+        /* Error List Styling */
+        .errorlist {
+            list-style: none;
+            background-color: #f44336;
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 1vh;
+        }
+
+        marquee {
+            font-size: medium;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="bi bi-chevron-up"></i></button>
+
+    <div class="top-header">
+        <div class="container">
+            <div class="row gy-4 align-items-center">
+                <div class="col-lg-8 col-md-4">
+                    <div class="d-flex justify-content-md-start justify-content-center align-items-center">
+                        <ul class="social-icon">
+                            <li><a target="_blank"
+                                    href="https://www.facebook.com/people/Tamizhan-Street-Premier-League/61571773982956"><i
+                                        class="bi bi-facebook"></i><span class="web-view">Facebook</span></a></li>
+                            <li><a target="_blank" href="https://www.instagram.com/tn_tspl"><i
+                                        class="bi bi-instagram"></i><span class="web-view">Instagram</span></a></li>
+                            <li><a target="_blank" href="https://www.youtube.com/@tn_tspl"><i
+                                        class="bi bi-youtube"></i><span class="web-view">Youtube</span></a></li>
+                            <li><a target="_blank" href="https://x.com/tntenniscricket"><i
+                                        class="bi bi-twitter-x"></i><span class="web-view">Twitter</span></a></li>
+                        </ul>
+
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-8">
+                    <div class="top-header-left">
+                        <ul class="justify-content-md-end justify-content-center">
+                            <li><a href="mailto:tamilnadutenniscricket@gmail.com" class="top-header-link"><i
+                                        class="bi bi-envelope"></i>tamilnadutenniscricket@gmail.com</a></li>
+                            <li><a href="https://Wa.me/+918675071671" class="top-header-link"><i
+                                        class="bi bi-telephone"></i>+91 8675071671</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-header mobile-view">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-10 col-md-10">
+                    <div class="logo">
+                        <a href="{% url 'index' %}"><img src="{% static 'assets/images/logo.png' %}" alt=""></a>
+                    </div>
+                </div>
+                <div class="col-2 col-md-2">
+                    <p class="text-end">
+                        <a class="btn toggler" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button"
+                            aria-controls="offcanvasExample">
+                            <i class="bi bi-filter-right"></i>
+                        </a>
+                    </p>
+                    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample"
+                        aria-labelledby="offcanvasExampleLabel">
+                        <div class="offcanvas-header">
+                            <h5 class="offcanvas-title" id="offcanvasExampleLabel">
+                                <a href="{% url 'index' %}" class="logo"><img
+                                        src="{% static 'assets/images/logo.png' %}" /></a>
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                                aria-label="Close"></button>
+                        </div>
+
+                        <div class="offcanvas-body mean-container">
+                            <div class="main-menu ">
+                                <nav class="mean-menulist">
+                                    <ul>
+                                        <li>
+                                            <a class="" aria-current="page" href="{% url 'index' %}">Home</a>
+                                        </li>
+                                        <li>
+                                            <a class="" href="{% url 'about' %}">About Us</a>
+                                        </li>
+                                        <li>
+                                            <a class="" href="{% url 'commitie' %}">committee</a>
+                                        </li>
+                                        <!-- <li>
+                                            <a href="{% static 'assets/images/rule-books.pdf' %}" target="_blank">Rules Book</a>
+                                        </li> -->
+                                        <li>
+                                            <a class="" href="{% url 'newsevents' %}">News & Events</a>
+                                        </li>
+                                        <li>
+                                            <a class="" href="javascript:void(0)">Gallery</a>
+                                            <ul>
+                                                <li><a href="{% url 'gallery' %}">Image Gallery</a></li>
+                                                <li><a href="{% url 'vgallery' %}">Video Gallery</a></li>
+                                            </ul>
+                                        </li>
+                                        <!--<li>
+                                            <a class=""  href="{% url 'contact' %}">Contact Us</a>
+                                        </li>-->
+                                    </ul>
+
+                                </nav>
+
+
+                            </div>
+
+
+                        </div>
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-center">
+                                <!-- <a href="{% url 'points_table' %}" class="btn header-btn">Points table</a> -->
+                                {% if user.is_authenticated %}
+                                <!-- <a href="{% url 'player_result' %}" class="btn header-btn">View Result</a> -->
+
+                                <form action="{% url 'user_logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button class="btn header-btn1 me-2">logout</button>
+                                </form>
+                                {% else %}
+                                <!-- <a href="{% url 'allResults' %}" class="btn header-btn">Results</a> -->
+                                <a href="{% url 'login' %}" class="btn header-btn1 me-2">Login</a>
+                                {% endif %}
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="main-header web-view">
+        <nav class="navbar navbar-expand-md bg-body-tertiary">
+            <div class="container">
+                <a href="{% url 'index' %}" class="navbar-brand"><img src="{% static 'assets/images/logo.png' %}"
+                        alt=""></a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="{% url 'index' %}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link " href="{% url 'about' %}">About Us</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link " href="{% url 'commitie' %}">committee</a>
+                        </li>
+                        <!-- <li class="nav-item">
+                            <a class="nav-link" href="{% static './assets/images/rule-books.pdf' %}" target="_blank">Rule book</a>
+                        </li> -->
+                        <li class="nav-item">
+                            <a class="nav-link " href="{% url 'newsevents' %}">News and Events</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle " href="{% url 'gallery' %}">Gallery</a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'gallery' %}" class="dropdown-item">Image Gallery</a></li>
+                                <li><a href="{% url 'vgallery' %}" class="dropdown-item">Video Gallery</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link " href="{% url 'password_change' %}">Change Password</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex ms-4 gap-2">
+                        <!-- <a href="{% url 'points_table' %}" class="btn header-btn">Points Table</a> -->
+                        {% if user.is_authenticated %}
+                        <!-- <a href="{% url 'player_result' %}" class="btn header-btn">View Result</a> -->
+                        {% if settings and settings.enable_registration and settings.current_season %}
+                            <a href="{% url 'register_form' settings.current_season.id %}" class="btn header-btn">
+                                Online Registration
+                            </a>
+                        {% endif %}
+
+                        <form action="{% url 'user_logout' %}" method="post">
+                            {% csrf_token %}
+                            <button class="btn header-btn1 me-2">logout</button>
+                        </form>
+                        {% else %}
+                        <!-- <a href="{% url 'allResults' %}" class="btn header-btn">Results</a> -->
+                        <a href="{% url 'login' %}" class="btn header-btn1 me-2">Login</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- <div class="bg-success p-2 text-white">
+        <marquee behavior="scroll" direction="">Registration Trials at Sowdambika JJ College of Engineering and Technology on Feb 22 & 23 2025, at 7 AM. Timings will be updated after registration closes. Registration will be closed on Feb 15 2025!!</marquee>
+        <marquee behavior="scroll" direction=""><strong>Alert: </strong>The results will be out after March 10, 2025 you
+            can check your points by clicking points table. Keep practicing and get your kits ready—success comes to
+            those who never give up!</marquee>
+    </div> -->
+
+    {% if messages %}
+
+    <div class="container m-3">
+        {% for i in messages %}
+        <div class="alert alert-{{i.tags}} alert-dismissible fade show" role="alert">
+            {{i.message}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+
+    </div>
+    {% endif %}
+
+    {% block main %}
+
+    {% endblock %}
+
+
+    <footer class="footer">
+        <img src="{% static 'assets/images/footer-1.png' %}" class="footer-1" alt="">
+        <img src="{% static 'assets/images/footer-2.png' %}" class="footer-2" alt="">
+        <div class="container">
+            <div class="row gy-4 justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <div class="footer-logo">
+                        <img src="{% static 'assets/images/logo.png' %}" alt="">
+                    </div>
+                    <h5 class="footer-title">Address</h5>
+                    <p class="footer-text">Hattrick Solutions,73E Pookkollai Street, Mannargudi - 614001</p>
+                    <ul class="footer-link-list">
+                        <li><a href="https://Wa.me/+918675071671"><i class="bi bi-geo-alt"></i>+91 8675071671</a></li>
+                        <li><a href="mailto:tamilnadutenniscricket@gmail.com"><i
+                                    class="bi bi-envelope"></i>tamilnadutenniscricket@gmail.com</a></li>
+                    </ul>
+                    <ul class="footer-link-list">
+                        <li><a target="_blank"
+                                href="https://www.facebook.com/people/Tamizhan-Street-Premier-League/61571773982956"><i
+                                    class="bi bi-facebook"></i>Facebook</a></li>
+                        <li><a target="_blank" href="https://www.instagram.com/tn_tspl"><i
+                                    class="bi bi-instagram"></i>Instagram</a></li>
+                        <li><a target="_blank" href="https://www.youtube.com/@tn_tspl"><i
+                                    class="bi bi-youtube"></i>Youtube</a></li>
+                        <li><a target="_blank" href="https://x.com/tntenniscricket"><i
+                                    class="bi bi-twitter-x"></i>Twitter</a></li>
+                        <li><a target="_blank" href="{% url 'sitemap' %}"><i class="bi bi-map"></i>Sitemap</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-top">
+                <div class="row gy-4">
+                    <div class="col-md-12 col-lg-6">
+                        <p class="footer-text text-center text-lg-start">©2025 All rights reserved. TSPL- Designed by
+                            <a href="">hatricksolution.in</a>
+                        </p>
+
+                    </div>
+                    <div class="col-md-12 col-lg-6">
+                        <ul class="footer-list">
+                            <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+                            <li><a href="{% url 'privacy_policy' %}">Terms and Conditions</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script type="text/javascript" src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/js/owl.carousel.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/js/fancybox.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/js/wow.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/js/custom.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/js/jquery.meanmenu.min.js' %}"></script>
+
+    <script>
+
+        $(".banner-carousel ").owlCarousel({
+            loop: true,
+            margin: 0,
+            nav: false,
+            autoplay: false,
+            center: true,
+            smartSpeed: 1000,
+            autoplayTimeout: 5000,
+            responsive: {
+                0: {
+                    items: 1,
+                },
+                600: {
+                    items: 1,
+                },
+                1000: {
+                    items: 1,
+                },
+            },
+        });
+
+
+        $(".service-carousel").owlCarousel({
+            loop: true,
+            margin: 10,
+            autoplay: true,
+            smartSpeed: 1000,
+            autoplayTimeout: 5000,
+            responsive: {
+                0: {
+                    items: 1,
+                },
+                600: {
+                    items: 1,
+                },
+                1000: {
+                    items: 3,
+                },
+            },
+        });
+
+        $(".testimonial-slider").owlCarousel({
+            loop: true,
+            margin: 30,
+            autoplay: true,
+            smartSpeed: 1000,
+            autoplayTimeout: 5000,
+            responsive: {
+                0: {
+                    items: 1,
+                },
+                600: {
+                    items: 1,
+                },
+                1000: {
+                    items: 1,
+                },
+            },
+        });
+
+
+
+        $(".owl-prev").html('<i class="fa-solid fa-angle-left"></i>');
+        $(".owl-next").html('<i class="fa-solid fa-angle-right"></i>');
+
+        $(".banner-carousel .owl-prev").html('<i class="bi bi-chevron-left"></i>');
+        $(".banner-carousel .owl-next").html('<i class="bi bi-chevron-right"></i>');
+
+    </script>
+
+    <script>
+        // Get the button element
+        const myButton = document.getElementById("myBtn");
+
+        // Show or hide the button based on scroll position
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 20) {
+                myButton.style.display = "block";
+            } else {
+                myButton.style.display = "none";
+            }
+        });
+
+        // Scroll to the top of the page when the button is clicked
+        myButton.addEventListener("click", () => {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth" // Smooth scroll effect
+            });
+        });
+    </script>
+
+
+
+    <script>
+        $(document).ready(function () {
+            var scroll_pos = 0;
+            $(document).scroll(function () {
+                scroll_pos = $(this).scrollTop();
+                if (scroll_pos >= 50) {
+                    $('.main-header').addClass("fixed");
+                } else {
+                    $('.main-header').removeClass("fixed");
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $('.mean-menulist').meanmenu({
+            meanMenuContainer: '.mobile-menu',
+
+        });
+    </script>
+
+
+
+
+
+
+</body>
+
+</html>

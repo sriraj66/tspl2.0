@@ -1,0 +1,111 @@
+{% extends '_.html' %}
+
+{% load static %}
+{% block main %}
+<section class="news-detail">
+    <div class="container">
+        <div class="row gy-4 gx-1">
+            <div class="col-lg-8">
+                <div class="news-content">
+                   
+                    <ul class="user-list">
+                        <li><i class="bi bi-tag"></i><a href="#">TSPL League</a></li>
+                        <li><i class="bi bi-person"></i><a href="#">By Admin</a></li>
+                    </ul>
+                    <h5 class="news-title">Who Can Register
+                    </h5>
+                    <p class="news-text">Tamilnadu Street Premier League is open to anyone aged 12 years or older. Whether you’re a budding tennis ball cricket enthusiast or an experienced player, this league provides a platform for individuals of all skill levels to showcase their talent and passion for the sport.</p>
+                    
+
+<h5 class="news-title">Registration Process:</h5>
+
+<p class="news-text">To kickstart your Tennis ball cricketing journey with TSPL-T10, simply visit the official website at www.tspl-t10.com. Once there, you’ll find a straightforward registration process that allows you to sign up quickly and easily.</p>
+
+<h5 class="news-title">Fees and Categories:</h5>
+
+<p class="news-text">Upon registration, players are required to pay a nominal fee to participate in the league. The registration fee are charged INR 1000 for players Batsmen, bowlers, all-rounders and wicketkeepers.</p>
+
+<h5 class="news-title">Trial Details:</h5>
+
+<p class="news-text">Trials for TSPL-T10 are conducted across Tamilnadu districs. These trials serve as an opportunity for players to showcase their skills and abilities on the field. Players are categorized based on their age into 2 groups: under 19 and above 20 This ensures that participants compete against others within their age bracket, promoting fair competition and equal opportunities for all.</p>
+                    
+                    
+                </div>
+            </div>
+            <div class="col-lg-4">
+                 <div class="card-list">
+                    <div class="row gy-4">
+                        <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-0.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">June 19, 2023</p> -->
+                                        <h5 class="card-title">Tennis Ball Cricket</h5>
+                                        <p class="read-link"><a href="{% url 'tennies_ball_cricket' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       
+                         <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-8.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">Aug 24, 2023</p> -->
+                                        <h5 class="card-title">Indian Street Premier League (ISPL) 2025: Teams & Players Revealed</h5>
+                                        <p class="read-link"><a href="{% url 'ispl_player_revealed' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-16.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">Sep 11, 2023</p> -->
+                                        <h5 class="card-title">Own a TSPL Franchise Team</h5>
+                                        <p class="read-link"><a href="{% url 'own_tspl_franchise' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-6">
+                            <div class="news-card-small">
+                                <div class="row align-items-center">
+                                    <div class="col-4">
+                                        <div class="img-box">
+                                            <img src="{% static 'assets/images/gallery/img-18.webp' %}" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <!-- <p class="card-text">Dec 1, 2023</p> -->
+                                        <h5 class="card-title">TSPL-T10 AUCTIONS 2025</h5>
+                                        <p class="read-link"><a href="{% url 'tspl_t10_action' %}">Read More</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

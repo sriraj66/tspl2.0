@@ -1,0 +1,16 @@
+{% extends "_auth.html" %}
+
+{% block title %}Register{% endblock %}
+{% block heading %}Register{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn-primary">Register</button>
+</form>
+
+<p class="auth-link">
+    Have an account? <a href="{% url 'login' %}">Login here</a>
+</p>
+{% endblock %}
