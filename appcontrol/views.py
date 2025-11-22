@@ -7,7 +7,7 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from core.models import PlayerRegistration, Season
+from core.models import PlayerRegistration, Season, Payment
 from core.utils import get_general_settings
 from core.task import send_success_email
 from django.db.models import Q
@@ -215,7 +215,14 @@ def trigger_mail(request):
             return redirect(request.path + f"?season_id={season_id}")
 
         for reg in PlayerRegistration.objects.filter(id__in=selected_ids):
-            context = {"player": reg}
+            payment = Payment.objects.filter(season=season_id, registration= reg.id, user=reg.user.id)
+            context = {
+                "id": reg.tx_id,
+                "reg_id": registrations.reg_id,
+                "amount": payment.amount,
+                "zone": reg.zone,
+                "settings": get_general_settings()
+            }
 
             try:
                 send_success_email(
