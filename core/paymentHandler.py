@@ -110,7 +110,7 @@ def handle_successful_capture(payment_obj, payment_details):
 
 	# update registration
 	registration = payment_obj.registration
-	registration.is_paid = True
+	registration.is_compleated = True
 	registration.tx_id = payment_obj.payment_id
 	registration.save()
 

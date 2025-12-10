@@ -260,7 +260,7 @@ def payment_handler(request, id):
             "id": payment_id,
             "reg_id": registration.reg_id,
             "order_id": order_id,
-            "amount": payment_details["amount"],
+            "amount": round(payment_details["amount"] / 100, 2),
             "zone": registration.zone,
             "settings": settings
         

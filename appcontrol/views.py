@@ -149,7 +149,7 @@ def data_upload(request):
                         "first_preference": row["first_preference"],
                         "batting_arm": row["batting_arm"],
                         "role": row["role"],
-                        "is_paid": bool(int(row["is_paid"])),
+                        "is_compleated": bool(int(row["is_paid"])),
                         "tx_id": row["tx_id"],
                         "is_selected": bool(int(row["is_selected"])),
                         "points": points_map.get(reg_id, int(row.get("points", 0))),
