@@ -40,6 +40,7 @@ def register_form(request, id):
         return redirect('index')
 
     registration = PlayerRegistration.objects.filter(season=season, user=user).first()
+    last_registration = PlayerRegistration.objects.filter(user=user).exclude(season=season).order_by('-created').first()
 
     # ----------------------------
     # CASE 1: USER ALREADY REGISTERED
@@ -104,13 +105,11 @@ def register_form(request, id):
             else:
                 form = PlayerRegistrationForm(instance=registration)
             
-        
-            print(registration.id)
             return render(request, "core/form.html", {
                 "form": form,
                 "settings": settings,
                 "season": season,
-                "button_message": "Save" if registration.is_paid  else "Compleate pending payment",
+                "button_message": "Save" if registration.is_compleated  else "Compleate pending payment",
                 "edit_mode": True,
             })
 
@@ -177,7 +176,7 @@ def register_form(request, id):
     # CASE 2: USER REGISTERING FOR THE FIRST TIME
     # ----------------------------
     else:
-        form = PlayerRegistrationForm()
+        form = PlayerRegistrationForm(instance=last_registration) # Pre-fill with last registration data if exists
 
         if request.method == 'POST':
             form = PlayerRegistrationForm(request.POST, request.FILES)

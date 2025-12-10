@@ -74,7 +74,6 @@ class PlayerRegistration(models.Model):
     role = models.CharField(max_length=100,choices=ROLE,verbose_name="Player Role",default=0)
 
 
-    is_paid = models.BooleanField(default=False,verbose_name="Is Player Paid")
     tx_id = models.CharField(blank=True,max_length=255,verbose_name="Transition ID#")
     
     is_selected = models.BooleanField(default=False,verbose_name="Is the player got Selected")

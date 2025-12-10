@@ -10,20 +10,20 @@ class PlayerRegistrationResource(resources.ModelResource):
             'id', 'reg_id','user__username', 'player_name', 'father_name',
             'dob', 'gender', 'tshirt_size', 'mobile', 'wathsapp_number', 'email', 'adhar_card',
             'player_image', 'district', 'zone', 'pin_code', 'address', 'first_preference','batting_arm',
-            'role', 'is_paid', 'tx_id', 'is_selected', 'points','created'
+            'role', 'is_compleated', 'tx_id', 'is_selected', 'points','created'
         )
         export_order = fields
         
         import_id_fields = ['id']
 
 class PlayerRegistrationAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('season_title', 'reg_id', 'player_name', 'district', 'zone', 'is_paid', 'points', 'created')
+    list_display = ('season_title', 'reg_id', 'player_name', 'district', 'zone', 'is_compleated', 'points', 'created')
     
     search_fields = (
         'reg_id', 'user__username', 'player_name', 'mobile',
         'email', 'adhar_card', 'district','tx_id', "is_selected", "points"
     )
-    list_filter = ('zone', 'is_paid','is_selected', 'gender', 'district')
+    list_filter = ('zone', 'is_compleated','is_selected', 'gender', 'district')
     ordering = ('-created',)
     readonly_fields = ('reg_id','zone', 'created')
     
