@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Send Bulk Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 15px;
+        }
+        iframe {
+            width: 100%;
+            height: 300px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+        }
+        .message {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e2ffd9;
+            border: 1px solid #b5ffb0;
+        }
+    </style>
+</head>
+<body>
+    <h2>Send Bulk Email to All Users</h2>
+    <ul>
+        <li><a href="{% url 'con_index' %}">Index</a></li>
+    </ul>
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="message">{{ msg }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label for="subject">Email Subject:</label>
+        <input type="text" id="subject" name="subject" placeholder="Enter email subject" required>
+
+        <label for="email_html">Email HTML Content:</label>
+        <textarea id="email_html" name="email_html" rows="10" placeholder="Write your HTML email here..." required></textarea>
+
+        <button type="submit">Send Email</button>
+        <button type="button" onclick="previewEmail()">Preview Email</button>
+
+        <label>Preview:</label>
+        <iframe id="previewFrame"></iframe>
+    </form>
+
+    <script>
+        function previewEmail() {
+            const html = document.getElementById('email_html').value;
+            const frame = document.getElementById('previewFrame');
+            frame.contentDocument.open();
+            frame.contentDocument.write(html);
+            frame.contentDocument.close();
+        }
+    </script>
+</body>
+</html>

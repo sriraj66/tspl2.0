@@ -4,6 +4,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from core.models import PlayerRegistration, Season
 from django.conf import settings
+from django.template import Template, Context
 import csv, io
 import logging
 
@@ -97,6 +98,41 @@ def send_selection_status_email(subject, to_email, context):
 
     # Submit to thread pool
     email_executor.submit(_send_email)
+
+def send_custom_email(subject, to_email, html_content, context=None):
+    """
+    Sends an email using your executor. Optionally renders HTML with context.
+    """
+    logger.info(f"Submitting bulk email to {to_email}")
+
+    def _send():
+        try:
+            # Render template if context is provided
+            if context:
+                t = Template(html_content)
+                c = Context(context)
+                rendered_html = t.render(c)
+            else:
+                rendered_html = html_content
+
+            text_content = "You have a new notification."
+
+            message = EmailMultiAlternatives(
+                subject,
+                text_content,
+                settings.EMAIL_HOST_USER,
+                [to_email],
+            )
+            message.attach_alternative(rendered_html, "text/html")
+            message.send()
+
+            logger.info(f"Bulk email sent to {to_email}")
+
+        except Exception as e:
+            logger.error(f"Failed sending bulk email to {to_email}: {str(e)}")
+
+    email_executor.submit(_send)
+
 
 def process_csv_upload(data_bytes, points_bytes, season_id):
     """Process the entire CSV in a single safe background thread."""

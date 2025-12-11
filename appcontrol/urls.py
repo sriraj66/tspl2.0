@@ -10,6 +10,7 @@ urlpatterns = [
     
     path("send-remaining-payment-mail/", views.send_remaining_payment_mail, name="con_send_remaining_payment_mail"),
     path("send-selection-payment-mail/", views.send_selection_status_mail, name="con_send_selection_status_mail"),
+    path("send-mail",views.send_bulk_mail, name="con_send_bulk_mail")
 ]
 
 

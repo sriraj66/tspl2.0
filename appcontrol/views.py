@@ -4,9 +4,9 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, HttpResponse 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from core.models import PlayerRegistration, Season, Payment
+from core.models import PlayerRegistration, Season, Payment, User
 from core.utils import get_general_settings
-from core.task import send_success_email, send_payment_reminder_email, send_selection_status_email, submit_csv_task
+from core.task import send_success_email, send_payment_reminder_email, send_selection_status_email, submit_csv_task, send_custom_email
 from django.db.models import Q
 import pandas as pd
 
@@ -391,5 +391,51 @@ def send_selection_status_mail(request):
         "registrations": registrations,
         "settings": settings
     })
+
+@login_required
+def send_bulk_mail(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Invalid Access")
+    settings = get_general_settings()
+    if request.method == "POST":
+        html_content = request.POST.get("email_html", "").strip()
+        subject = request.POST.get("subject", "").strip()
+
+        if not subject or not html_content:
+            messages.error(request, "Subject and HTML content are required.")
+            return redirect(request.path)
+
+        users = User.objects.filter(email__isnull=False).exclude(email="")
+
+        for user in users:
+            # Pass actual user info as context
+            context = {
+                "username": user.username,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "season_title": settings.current_season.title,
+                "start_date": settings.current_season.start_date,
+                "end_date": settings.current_season.end_date,
+                "amount": settings.current_season.amount,
+                "year": settings.current_season.year
+            }
+
+            send_custom_email(
+                subject=subject,
+                to_email=user.email,
+                html_content=html_content,
+                context=context
+            )
+
+        messages.success(
+            request,
+            f"Bulk email queued for {users.count()} users! Delivery will happen shortly."
+        )
+        return redirect(request.path)
+
+    return render(request, "appcontrol/send_mail.html")
+
+
 
 
