@@ -1,12 +1,15 @@
 import concurrent.futures
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from django.conf import settings
+from django.contrib.auth.models import User
 from core.models import PlayerRegistration, Season
+from django.conf import settings
 import csv, io
 import logging
 
-email_executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
+email_executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)
+csv_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+
 logger = logging.getLogger('core')
 
 def send_success_email(subject, to, context):
@@ -95,32 +98,22 @@ def send_selection_status_email(subject, to_email, context):
     # Submit to thread pool
     email_executor.submit(_send_email)
 
-
-# DATA UPLOAD
-from celery import shared_task
-from django.contrib.auth.models import User
-from appcontrol.models import PlayerRegistration, Season
-import csv, io, logging
-
-logger = logging.getLogger(__name__)
-
-# Helper
-def calculate_age(dob_str):
-    from datetime import datetime, date
-    dob = datetime.strptime(dob_str, "%Y-%m-%d").date()
-    today = date.today()
-    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-
-
-@shared_task
 def process_csv_upload(data_bytes, points_bytes, season_id):
+    """Process the entire CSV in a single safe background thread."""
+    
+    def calculate_age(dob_str):
+        from datetime import datetime, date
+        dob = datetime.strptime(dob_str, "%Y-%m-%d").date()
+        today = date.today()
+        return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
     try:
         season = Season.objects.get(id=season_id)
     except Season.DoesNotExist:
         logger.error("Season not found")
         return "SEASON_NOT_FOUND"
 
-    # -------- Parse Points File (optional) --------
+    # -------- Optional Points CSV --------
     points_map = {}
     if points_bytes:
         points_str = points_bytes.decode("utf-8")
@@ -129,7 +122,7 @@ def process_csv_upload(data_bytes, points_bytes, season_id):
         for pid, pts in p_reader:
             points_map[pid.strip()] = int(pts)
 
-    # -------- Parse Main CSV --------
+    # -------- Main CSV --------
     data_str = data_bytes.decode("utf-8")
     csv_reader = csv.DictReader(io.StringIO(data_str))
 
@@ -151,10 +144,10 @@ def process_csv_upload(data_bytes, points_bytes, season_id):
             first_name = name_parts[0]
             last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
 
-            # Password logic
+            # Generate password
             password = dob.replace("-", "") + mobile[-4:]
 
-            # User get or create
+            # Create / update user
             user, new_user = User.objects.get_or_create(
                 username=username,
                 defaults={
@@ -169,17 +162,16 @@ def process_csv_upload(data_bytes, points_bytes, season_id):
                 user.save()
                 user_created += 1
             else:
-                # update user data
                 user.first_name = first_name
                 user.last_name = last_name
                 user.email = email
                 user.save()
 
-            # Age + category
+            # Age
             age = calculate_age(dob)
             category = "21 and Above"
 
-            # Create/update registration
+            # Create/update PlayerRegistration
             pr, is_created = PlayerRegistration.objects.update_or_create(
                 season=season,
                 reg_id=reg_id,
@@ -214,13 +206,21 @@ def process_csv_upload(data_bytes, points_bytes, season_id):
 
             if is_created:
                 created += 1
+                logger.info(f"reg_id={reg_id} - CREATED")
             else:
                 updated += 1
+                logger.info(f"reg_id={reg_id} - UPDATED")
 
         except Exception as e:
-            logger.error(f"[ERROR] reg_id={row.get('reg_id')} - {str(e)}")
+            logger.error(f"[ERROR] reg_id={row.get('reg_id')} - {e}")
             continue
 
     summary = f"Done: Players Created={created}, Updated={updated}, Users Created={user_created}"
     logger.info(summary)
     return summary
+
+
+def submit_csv_task(data_bytes, points_bytes, season_id):
+    """Submit CSV processing job to the single-thread executor."""
+    return csv_executor.submit(process_csv_upload, data_bytes, points_bytes, season_id)
+
