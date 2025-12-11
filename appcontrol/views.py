@@ -191,15 +191,19 @@ def trigger_mail(request):
     mail_filter = request.GET.get("mail_filter", "all")  # all / sent / unsent
 
     if season_id:
-        registrations = PlayerRegistration.objects.filter(season_id=season_id)
+        # Only completed players visible
+        registrations = PlayerRegistration.objects.filter(
+            season=season_id,
+            is_compleated=True
+        )
 
-        # Apply mail sent filter
+        # Mail Sent Filter
         if mail_filter == "sent":
             registrations = registrations.filter(is_mail_sent=True)
         elif mail_filter == "unsent":
             registrations = registrations.filter(is_mail_sent=False)
 
-        # Apply search
+        # Search Filter
         if query:
             registrations = registrations.filter(
                 Q(reg_id__icontains=query) |
@@ -207,19 +211,28 @@ def trigger_mail(request):
                 Q(player_name__icontains=query)
             )
 
-    # POST → Sending emails
+    # POST → SEND EMAILS
     if request.method == "POST":
         selected_ids = request.POST.getlist("selected_ids")
 
         if not selected_ids:
             messages.error(request, "No players selected.")
-            return redirect(request.path + f"?season_id={season_id}")
+            return redirect(f"{request.path}?season_id={season_id}&q={query}&mail_filter={mail_filter}")
 
-        for reg in PlayerRegistration.objects.filter(id__in=selected_ids):
-            payment = Payment.objects.filter(season=season_id, registration= reg.id, user=reg.user.id)
+        for reg in PlayerRegistration.objects.filter(id__in=selected_ids, is_compleated=True):
+
+            payment = Payment.objects.filter(
+                registration=reg.id,
+                user=reg.user
+            ).order_by("-created_at").first()
+
+            if not payment:
+                logger.warning(f"No payment found for reg_id={reg.reg_id}")
+                continue
+
             context = {
                 "id": reg.tx_id,
-                "reg_id": registrations.reg_id,
+                "reg_id": reg.reg_id,
                 "amount": payment.amount,
                 "zone": reg.zone,
                 "settings": get_general_settings()
@@ -231,19 +244,22 @@ def trigger_mail(request):
                     to=reg.user.email,
                     context=context
                 )
+
                 reg.is_mail_sent = True
                 reg.save()
+
                 logger.info(f"[MAIL SENT] reg_id={reg.reg_id}")
+
             except Exception as e:
                 logger.error(f"[MAIL ERROR] reg_id={reg.reg_id} error={str(e)}")
 
-        messages.success(request, "Mail sent successfully!")
-        return redirect(request.path + f"?season_id={season_id}")
+        messages.success(request, "Emails sent successfully!")
+        return redirect(f"{request.path}?season_id={season_id}&q={query}&mail_filter={mail_filter}")
 
     return render(request, "appcontrol/trigger_mail.html", {
         "seasons": seasons,
         "registrations": registrations,
-        "mail_filter": mail_filter
+        "mail_filter": mail_filter,
     })
 
 @login_required
