@@ -52,11 +52,11 @@ services:
     ports:
       - "5432:5432"
 
-  db-adminer:
-    image: adminer
-    restart: always
-    ports:
-      - "5433:8080"
+  # db-adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - "5433:8080"
 
 
 
