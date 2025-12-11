@@ -2,6 +2,8 @@ import concurrent.futures
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
+from core.models import PlayerRegistration, Season
+import csv, io
 import logging
 
 email_executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
@@ -92,3 +94,133 @@ def send_selection_status_email(subject, to_email, context):
 
     # Submit to thread pool
     email_executor.submit(_send_email)
+
+
+# DATA UPLOAD
+from celery import shared_task
+from django.contrib.auth.models import User
+from appcontrol.models import PlayerRegistration, Season
+import csv, io, logging
+
+logger = logging.getLogger(__name__)
+
+# Helper
+def calculate_age(dob_str):
+    from datetime import datetime, date
+    dob = datetime.strptime(dob_str, "%Y-%m-%d").date()
+    today = date.today()
+    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+
+@shared_task
+def process_csv_upload(data_bytes, points_bytes, season_id):
+    try:
+        season = Season.objects.get(id=season_id)
+    except Season.DoesNotExist:
+        logger.error("Season not found")
+        return "SEASON_NOT_FOUND"
+
+    # -------- Parse Points File (optional) --------
+    points_map = {}
+    if points_bytes:
+        points_str = points_bytes.decode("utf-8")
+        p_reader = csv.reader(io.StringIO(points_str))
+        next(p_reader, None)
+        for pid, pts in p_reader:
+            points_map[pid.strip()] = int(pts)
+
+    # -------- Parse Main CSV --------
+    data_str = data_bytes.decode("utf-8")
+    csv_reader = csv.DictReader(io.StringIO(data_str))
+
+    created = 0
+    updated = 0
+    user_created = 0
+
+    for row in csv_reader:
+        try:
+            reg_id = row["reg_id"].strip()
+            username = row["user__username"].strip()
+            player_name = row["player_name"].strip()
+            email = row["email"].strip()
+            dob = row["dob"].strip()
+            mobile = row["mobile"].strip()
+
+            # Split name
+            name_parts = player_name.split(" ")
+            first_name = name_parts[0]
+            last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
+
+            # Password logic
+            password = dob.replace("-", "") + mobile[-4:]
+
+            # User get or create
+            user, new_user = User.objects.get_or_create(
+                username=username,
+                defaults={
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "email": email,
+                }
+            )
+
+            if new_user:
+                user.set_password(password)
+                user.save()
+                user_created += 1
+            else:
+                # update user data
+                user.first_name = first_name
+                user.last_name = last_name
+                user.email = email
+                user.save()
+
+            # Age + category
+            age = calculate_age(dob)
+            category = "21 and Above"
+
+            # Create/update registration
+            pr, is_created = PlayerRegistration.objects.update_or_create(
+                season=season,
+                reg_id=reg_id,
+                defaults={
+                    "user": user,
+                    "player_name": player_name,
+                    "father_name": row["father_name"],
+                    "category": category,
+                    "age": age,
+                    "dob": row["dob"],
+                    "gender": row["gender"],
+                    "tshirt_size": row["tshirt_size"],
+                    "occupation": 3,
+                    "mobile": row["mobile"],
+                    "wathsapp_number": row["wathsapp_number"],
+                    "email": row["email"],
+                    "adhar_card": row["adhar_card"],
+                    "player_image": row["player_image"],
+                    "district": row["district"],
+                    "zone": row["zone"],
+                    "pin_code": row["pin_code"],
+                    "address": row["address"],
+                    "first_preference": row["first_preference"],
+                    "batting_arm": row["batting_arm"],
+                    "role": row["role"],
+                    "is_compleated": bool(int(row["is_paid"])),
+                    "tx_id": row["tx_id"],
+                    "is_selected": bool(int(row["is_selected"])),
+                    "points": points_map.get(reg_id, int(row.get("points", 0))),
+                }
+            )
+
+            if is_created:
+                created += 1
+            else:
+                updated += 1
+
+        except Exception as e:
+            logger.error(f"[ERROR] reg_id={row.get('reg_id')} - {str(e)}")
+            continue
+
+    summary = f"Done: Players Created={created}, Updated={updated}, Users Created={user_created}"
+    logger.info(summary)
+    return summary
