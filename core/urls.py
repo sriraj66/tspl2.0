@@ -14,7 +14,6 @@ urlpatterns += [
     path("form/<int:id>",views.register_form,name='register_form'),
     path("paymenthandler/<int:id>", views.payment_handler, name="payment_handler"),
 
-    path("res",views.index,name="player_result"),
-    path("res.all",views.index,name="allResults"),
-    path("update/points",views.index)
+    path("res",views.player_result,name="player_result"),
+    path("res.all",views.allResults,name="allResults"),
 ]

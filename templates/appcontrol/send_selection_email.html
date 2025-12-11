@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send Selection Status Emails</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; border: 1px solid #ccc; }
+        th { background: #f2f2f2; }
+        select, input[type="text"] { padding: 6px; }
+        button { padding: 6px 12px; margin-top: 12px; }
+
+        .messages { margin-bottom: 15px; }
+        .messages div { padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 14px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        .completed { background-color: #e6ffe6; } /* Highlight completed */
+        .pending { background-color: #fff3e6; }   /* Highlight pending */
+    </style>
+</head>
+<body>
+    <h2>Welcome {{user.username}},</h2>
+    <ul>
+        <li><a href="{% url 'con_index' %}">Index</a></li>
+    </ul>
+    <h2>Send Selection Status Emails</h2>
+
+    <div class="messages">
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Filter / Search Form -->
+    <form method="GET">
+        <label>Season:</label>
+        <select name="season_id" required>
+            <option value="">-- choose --</option>
+            {% for s in seasons %}
+                <option value="{{ s.id }}" {% if request.GET.season_id == s.id|stringformat:'s' %}selected{% endif %}>
+                    {{ s.title }} - {{ s.year }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <input type="text" name="q" placeholder="Search Reg ID / User / Player"
+               value="{{ request.GET.q }}" style="margin-left:20px;">
+        <button type="submit">Apply</button>
+    </form>
+
+    {% if registrations %}
+    <form method="POST">
+        {% csrf_token %}
+        <table>
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="select_all"></th>
+                    <th>Reg ID</th>
+                    <th>Player Name</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Zone</th>
+                    <th>Payment Amount</th>
+                    <th>Completed</th>
+                    <th>Selected</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in registrations %}
+                {% comment %} Highlight row based on completion status {% endcomment %}
+                <tr class="{% if item.reg.is_completed %}completed{% else %}pending{% endif %}">
+                    <td>
+                        <input type="checkbox" class="row_check" name="selected_ids" value="{{ item.reg.id }}">
+                    </td>
+                    <td>{{ item.reg.reg_id }}</td>
+                    <td>{{ item.reg.player_name }}</td>
+                    <td>{{ item.reg.user.username }}</td>
+                    <td>{{ item.reg.user.email }}</td>
+                    <td>{{ item.reg.zone }}</td>
+                    <td>{{ item.payment_amount }}</td>
+                    <td>{{ item.reg.is_completed|yesno:"Yes,No" }}</td>
+                    <td>{{ item.reg.is_selected|yesno:"Yes,No" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit">Send Selection Status Emails</button>
+    </form>
+    {% else %}
+        <p>No players found for this season or search query.</p>
+    {% endif %}
+
+    <script>
+        const selectAll = document.getElementById("select_all");
+        const checkboxes = document.querySelectorAll(".row_check");
+
+        selectAll?.addEventListener("change", () => {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        });
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener("change", () => {
+                selectAll.checked = [...checkboxes].every(x => x.checked);
+            });
+        });
+    </script>
+</body>
+</html>

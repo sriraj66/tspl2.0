@@ -17,7 +17,7 @@ class PlayerRegistrationResource(resources.ModelResource):
         import_id_fields = ['id']
 
 class PlayerRegistrationAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('season_title', 'reg_id', 'player_name', 'district', 'zone', 'is_compleated', 'points', 'created')
+    list_display = ('season_title', 'reg_id', 'player_name','email', 'zone', 'is_compleated', 'points', 'created')
     
     search_fields = (
         'reg_id', 'user__username', 'player_name', 'mobile',

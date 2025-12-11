@@ -285,3 +285,41 @@ def payment_handler(request, id):
         payment.status = "FAILED"
         payment.save()
         return render(request, "core/core/paymentfail.html", {"message": reason, "settings": settings})
+
+
+def allResults(request):
+    settings = get_general_settings()
+    if not settings.show_points_table:
+        return HttpResponse("Now Allowed", status=403)
+    
+    context = {
+        "selected" : PlayerRegistration.objects.filter(is_selected=True),
+        "notSelected" : PlayerRegistration.objects.filter(is_selected=False),
+        "settings": settings
+    }
+    return render(request,"allResults.html",context)
+
+@login_required
+def player_result(request):
+    settings = get_general_settings()
+
+    if not settings.enable_results:
+        return HttpResponse("Now Allowed", status=403)
+        
+    obj = PlayerRegistration.objects.filter(
+        user=request.user,
+        season=settings.current_season
+    ).first()
+
+    if not obj:
+        error(request, "No data found for your account")
+        return redirect("allResults")
+
+    if not obj.is_compleated:
+        warning(request, "Your Registeration is not yet Compleated")
+        return redirect("index")
+
+    if obj.is_selected:
+        return render(request, "selected.html", {"data": obj})
+    else:
+        return render(request, "notSelected.html", {"data": obj})

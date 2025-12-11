@@ -1,54 +1,113 @@
 from django.shortcuts import render,HttpResponse
 from django.template.loader import get_template
+from core.utils import get_general_settings
 
 def about(request):
-    return render(request,"staticPages/about.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/about.html", context)
 
 
 def contact(request):
-    return render(request,"staticPages/contactus.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/contactus.html",context)
 
 
 def newsevents(request):
-    return render(request,"staticPages/newsevents.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/newsevents.html",context)
 
 # BLOGS
 
 def commitie(request):
-    return render(request,"staticPages/blog/commitie.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/blog/commitie.html",context)
 
 
 def gallery(request):
-    return render(request,"staticPages/blog/imagegallery.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/blog/imagegallery.html",context)
 
 def vgallery(request):
-    return render(request,"staticPages/blog/videogallery.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/blog/videogallery.html",context)
 
 def pp(request):
-    return render(request,"staticPages/blog/privacy-policy.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/blog/privacy-policy.html",context)
 
 def tc(request):
-    return render(request,"staticPages/blog/tearms-and-condition.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/blog/tearms-and-condition.html",context)
 
 
 def b1(request):
-    return render(request,"staticPages/blog/ispl-player-revealed.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/blog/ispl-player-revealed.html",context)
 
 def b2(request):
-    return render(request,"staticPages/blog/own-a-tspl-franchise-team.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/blog/own-a-tspl-franchise-team.html",context)
 
 def b3(request):
-    return render(request,"staticPages/blog/tennies-ball-cricket.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/blog/tennies-ball-cricket.html",context)
 
 def b4(request):
-    return render(request,"staticPages/blog/tspl-t10-action.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/blog/tspl-t10-action.html",context)
 
 def b5(request):
-    return render(request,"staticPages/blog/who-can-register.html")
+    settings = get_general_settings()
+    context = {
+        'settings': settings,
+    }
+    return render(request,"staticPages/blog/who-can-register.html",context)
 
 
 def points_table(request):
-    return render(request,'staticPages/pointstable.html')
+    settings = get_general_settings()
+    if not settings.show_points_table:
+        return HttpResponse("Now Allowed", status=403)
+    context = {
+        'settings': settings,
+    }
+    return render(request,'staticPages/pointstable.html', context)
 
 # SEO
 def robot(request):

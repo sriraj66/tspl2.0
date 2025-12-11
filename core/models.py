@@ -137,13 +137,16 @@ class GeneralSettings(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Admin User")
     enable_registration = models.BooleanField(default=True,verbose_name="Enable Player Registration")
     current_season = models.ForeignKey(Season, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Current Season")
-    show_points_table = models.BooleanField(default=True,verbose_name="Show Points Table to Public")
+    show_points_table = models.BooleanField(default=False,verbose_name="Show Points Table to Public")
     enable_results = models.BooleanField(default=False,verbose_name="Enable Player Results Viewing")
+    
+    alert_message = models.TextField(default="Welcome", blank=True,null=True,verbose_name="Alert Message")
     
     # Payment Ids Credentials
     razorpay_key_id = models.CharField(max_length=255, default="", verbose_name="Razorpay Key ID")
     razorpay_key_secret = models.CharField(max_length=255, default="", verbose_name="Razorpay Key Secret")
     callback_url = models.URLField(max_length=500, default="", verbose_name="Payment Callback URL")
+    points_table_url = models.URLField(max_length=500, default="", verbose_name="Points Table URL")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
     
     class Meta:

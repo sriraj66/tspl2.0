@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Upload</title>
+    <title>Update Points</title>
 
     <style>
         body {
@@ -92,7 +92,7 @@
         <ul>
             <li><a href="{% url 'con_index' %}">Index</a></li>
         </ul>
-        <h2>CSV Data Upload</h2>
+        <h2>CSV Update Points</h2>
 
         <!-- Django Messages -->
         <div class="messages">
@@ -113,13 +113,13 @@
                 {% endfor %}
             </select>
 
-            <label for="file">Upload CSV File</label>
-            <input type="file" name="data_file" id="file" accept=".csv" required>
-            <label>Upload Points CSV (optional)</label>
+            <label>Upload Points CSV </label>
+            <span style="color: grey;"><small>Format: reg_id, points</small></span>
             <input type="file" name="points_file" accept=".csv">
 
             <input type="submit" value="Upload">
         </form>
+
 
     </div>
 

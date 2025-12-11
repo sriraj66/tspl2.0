@@ -202,27 +202,60 @@
                                 <nav class="mean-menulist">
                                     <ul>
                                         <li>
-                                            <a class="" aria-current="page" href="{% url 'index' %}">Home</a>
+                                            <a class="nav-link" aria-current="page" href="{% url 'index' %}">Home</a>
                                         </li>
                                         <li>
-                                            <a class="" href="{% url 'about' %}">About Us</a>
+                                            <a class="nav-link" href="{% url 'about' %}">About Us</a>
                                         </li>
                                         <li>
-                                            <a class="" href="{% url 'commitie' %}">committee</a>
+                                            <a class="nav-link" href="{% url 'commitie' %}">committee</a>
                                         </li>
                                         <!-- <li>
                                             <a href="{% static 'assets/images/rule-books.pdf' %}" target="_blank">Rules Book</a>
                                         </li> -->
                                         <li>
-                                            <a class="" href="{% url 'newsevents' %}">News & Events</a>
+                                            <a class="nav-link" href="{% url 'newsevents' %}">News & Events</a>
                                         </li>
                                         <li>
-                                            <a class="" href="javascript:void(0)">Gallery</a>
+                                            <a class="nav-link" href="javascript:void(0)">Gallery</a>
                                             <ul>
                                                 <li><a href="{% url 'gallery' %}">Image Gallery</a></li>
                                                 <li><a href="{% url 'vgallery' %}">Video Gallery</a></li>
                                             </ul>
                                         </li>
+                                        {% if user.is_authenticated %}
+                                        <li class="nav-item">
+                                            <a class="nav-link text-warning" href="{% url 'password_change' %}">Change
+                                                Password</a>
+                                        </li>
+                                        {% endif %}
+                                        {% if user.is_authenticated %}
+                                        <!-- <a href="{% url 'player_result' %}" class="btn header-btn">View Result</a> -->
+                                        {% if settings and settings.enable_registration and settings.current_season %}
+                                        <a href="{% url 'register_form' settings.current_season.id %}"
+                                            class="nav-link text-info">
+                                            <b>Online Registration</b>
+                                        </a>
+                                        {% endif %}
+                                        {% endif %}
+
+                                        {% if settings and settings.show_points_table or settings.enable_results %}
+                                        <li class="">
+                                            <a class="" href="javascript:void(0)">Results</a>
+                                            <ul class="">
+                                                {% if settings.show_points_table %}
+                                                <li><a href="{% url 'points_table' %}">Points
+                                                        table</a></li>
+                                                <li><a href="{% url 'allResults' %}">All
+                                                        Results</a></li>
+                                                {% endif %}
+
+                                                {% if user.is_authenticated and settings.enable_results %}
+                                                <li><a href="{% url 'player_result' %}" target="_blank">My Result</a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </li>
+                                        {% endif %}
                                         <!--<li>
                                             <a class=""  href="{% url 'contact' %}">Contact Us</a>
                                         </li>-->
@@ -237,17 +270,13 @@
                         </div>
                         <div class="mt-4">
                             <div class="d-flex justify-content-center">
-                                <!-- <a href="{% url 'points_table' %}" class="btn header-btn">Points table</a> -->
                                 {% if user.is_authenticated %}
-                                <!-- <a href="{% url 'player_result' %}" class="btn header-btn">View Result</a> -->
-
                                 <form action="{% url 'user_logout' %}" method="post">
                                     {% csrf_token %}
-                                    <button class="btn header-btn1 me-2">logout</button>
+                                    <button class="btn header-btn1 me-2 mb-2">logout</button>
                                 </form>
                                 {% else %}
-                                <!-- <a href="{% url 'allResults' %}" class="btn header-btn">Results</a> -->
-                                <a href="{% url 'login' %}" class="btn header-btn1 me-2">Login</a>
+                                <a href="{% url 'login' %}" class="btn header-btn1 me-2 mb-2">Login</a>
                                 {% endif %}
                             </div>
                         </div>
@@ -296,18 +325,34 @@
                                 <li><a href="{% url 'vgallery' %}" class="dropdown-item">Video Gallery</a></li>
                             </ul>
                         </li>
+                        {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link " href="{% url 'password_change' %}">Change Password</a>
+                            <a class="nav-link text-warning" style="text-decoration: underline;"
+                                href="{% url 'password_change' %}">Change Password</a>
                         </li>
+                        {% endif %}
+                        {% if settings and settings.show_points_table or settings.enable_results %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle " href="javascript:void(0)">Results</a>
+                            <ul class="dropdown-menu">
+                                {% if settings.show_points_table %}
+                                <li><a href="{% url 'points_table' %}" class="dropdown-item">Points table</a></li>
+                                <li><a href="{% url 'allResults' %}" class="dropdown-item">All Results</a></li>
+                                {% endif %}
+
+                                {% if user.is_authenticated and settings.enable_results %}
+                                <li><a href="{% url 'player_result' %}" class="dropdown-item" target="_blank">My Result</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        {% endif %}
                     </ul>
                     <div class="d-flex ms-4 gap-2">
-                        <!-- <a href="{% url 'points_table' %}" class="btn header-btn">Points Table</a> -->
                         {% if user.is_authenticated %}
-                        <!-- <a href="{% url 'player_result' %}" class="btn header-btn">View Result</a> -->
                         {% if settings and settings.enable_registration and settings.current_season %}
-                            <a href="{% url 'register_form' settings.current_season.id %}" class="btn header-btn">
-                                Online Registration
-                            </a>
+                        <a href="{% url 'register_form' settings.current_season.id %}" class="btn header-btn">
+                            Online Registration
+                        </a>
                         {% endif %}
 
                         <form action="{% url 'user_logout' %}" method="post">
@@ -315,7 +360,6 @@
                             <button class="btn header-btn1 me-2">logout</button>
                         </form>
                         {% else %}
-                        <!-- <a href="{% url 'allResults' %}" class="btn header-btn">Results</a> -->
                         <a href="{% url 'login' %}" class="btn header-btn1 me-2">Login</a>
                         {% endif %}
                     </div>
@@ -323,14 +367,13 @@
             </div>
         </nav>
     </div>
-
-    <!-- <div class="bg-success p-2 text-white">
-        <marquee behavior="scroll" direction="">Registration Trials at Sowdambika JJ College of Engineering and Technology on Feb 22 & 23 2025, at 7 AM. Timings will be updated after registration closes. Registration will be closed on Feb 15 2025!!</marquee>
-        <marquee behavior="scroll" direction=""><strong>Alert: </strong>The results will be out after March 10, 2025 you
-            can check your points by clicking points table. Keep practicing and get your kits ready—success comes to
-            those who never give up!</marquee>
-    </div> -->
-
+    {% if settings and settings.alert_message %}
+    <div class="bg-success p-2 text-white">
+        <marquee behavior="scroll" direction="">
+            {{ settings.alert_message|safe }}
+        </marquee>
+    </div>
+    {% endif %}
     {% if messages %}
 
     <div class="container m-3">
