@@ -71,7 +71,13 @@
     <link rel="preload" href="{% static 'assets/css/owl.theme.default.min.css' %}" as="style">
     <link rel="preload" href="{% static 'assets/css/style.css' %}" as="style">
 
-    <title>Tamizhan Street Premier League (TSPL) - Empowering Tamil Nadu Tennisball Cricket</title>
+    <title>
+        {% if settings and settings.current_season.title %}
+        {{ settings.current_season.title }} - Tamizhan Street Premier League (TSPL)
+        {% else %}
+        Empowering Tamil Nadu Tennisball Cricket - Tamizhan Street Premier League (TSPL) 
+        {% endif %}
+    </title>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta name="description"
@@ -110,6 +116,15 @@
     <link rel="stylesheet" href="{% static 'assets/css/owl.theme.default.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0GVPWTKX42"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-0GVPWTKX42');
+    </script>
 
     <style>
         .alert-error {
@@ -251,7 +266,8 @@
                                                 {% endif %}
 
                                                 {% if user.is_authenticated and settings.enable_results %}
-                                                <li><a href="{% url 'player_result' %}" target="_blank">My Result</a></li>
+                                                <li><a href="{% url 'player_result' %}" target="_blank">My Result</a>
+                                                </li>
                                                 {% endif %}
                                             </ul>
                                         </li>
@@ -341,7 +357,8 @@
                                 {% endif %}
 
                                 {% if user.is_authenticated and settings.enable_results %}
-                                <li><a href="{% url 'player_result' %}" class="dropdown-item" target="_blank">My Result</a></li>
+                                <li><a href="{% url 'player_result' %}" class="dropdown-item" target="_blank">My
+                                        Result</a></li>
                                 {% endif %}
                             </ul>
                         </li>
