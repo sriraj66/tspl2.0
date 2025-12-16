@@ -4,7 +4,8 @@ class CoreConfig(AppConfig):
     name = 'core'
     def ready(self):
         import atexit
-        from .task import email_executor, csv_executor
+        from .task import email_executor, csv_executor, bulk_email_executor
         atexit.register(lambda: email_executor.shutdown(wait=True))
         atexit.register(lambda: csv_executor.shutdown(wait=True))
+        atexit.register(lambda: bulk_email_executor.shutdown(wait=True))
         

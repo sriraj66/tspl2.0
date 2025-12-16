@@ -12,10 +12,12 @@ import time, random
 import atexit
 
 email_executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+bulk_email_executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
 csv_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
 email_executor._shutdown = False
 csv_executor._shutdown = False
+bulk_email_executor._shutdown = False
 
 # Register proper cleanup on application exit
 def cleanup_executors():
@@ -23,6 +25,7 @@ def cleanup_executors():
     logger.info("Shutting down thread pool executors...")
     email_executor.shutdown(wait=False)
     csv_executor.shutdown(wait=False)
+    bulk_email_executor.shutdown(wait=False)
 
 atexit.register(cleanup_executors)
 
@@ -51,6 +54,7 @@ def send_success_email(subject, to, context):
 def send_custom_email(subject, to_email, html_content, context=None, max_retries=5):
     """
     Sends an email safely with retries, backoff, and throttling.
+    Uses bulk_email_executor for better isolation from other email tasks.
     """
 
     def _send():
@@ -67,7 +71,7 @@ def send_custom_email(subject, to_email, html_content, context=None, max_retries
 
                 text_content = "You have a new notification."
 
-                # Use a shared connection for efficiency
+                # Use a fresh connection for each email
                 with get_connection() as connection:
                     time.sleep(random.uniform(0.5, 2.5))
                     message = EmailMultiAlternatives(
@@ -80,7 +84,7 @@ def send_custom_email(subject, to_email, html_content, context=None, max_retries
                     message.attach_alternative(rendered_html, "text/html")
                     message.send()
 
-                logger.info(f"Email sent to {to_email}")
+                logger.info(f"Custom email sent to {to_email}")
                 break
 
             except smtplib.SMTPResponseException as e:
@@ -93,14 +97,23 @@ def send_custom_email(subject, to_email, html_content, context=None, max_retries
                 else:
                     logger.error(f"SMTP error sending to {to_email}: {e.smtp_code} {e.smtp_error}")
                     break
+            except (ConnectionError, BrokenPipeError, OSError) as e:
+                attempt += 1
+                if attempt < max_retries:
+                    sleep_time = min(2 ** attempt, 30)
+                    logger.warning(f"Connection error for {to_email} (attempt {attempt}/{max_retries}): {e}. Retrying in {sleep_time}s...")
+                    time.sleep(sleep_time)
+                else:
+                    logger.error(f"Failed sending email to {to_email} after {max_retries} attempts: {e}")
+                    break
             except Exception as e:
                 logger.error(f"Failed sending email to {to_email}: {str(e)}")
                 break
             time.sleep(2)
 
-    logger.info(f"Submitting email to {to_email}")
+    logger.info(f"Submitting custom email to {to_email}")
     try:
-        email_executor.submit(_send)
+        bulk_email_executor.submit(_send)
     except Exception as e:
         logger.error(f"Failed to submit email task for {to_email}: {e}")
 
@@ -114,55 +127,104 @@ def send_batch_payment_reminder_emails(email_data_list, subject, settings_data):
     - settings_data (dict): General settings data (current_season_title, etc.)
     """
     
-    def _send_batch():
-        logger.info(f"Starting batch payment reminder emails for {len(email_data_list)} recipients")
-        
-        for idx, email_data in enumerate(email_data_list):
-            try:
-                # Build context for this email
-                context = {
-                    "id": email_data.get("tx_id"),
-                    "reg_id": email_data["reg_id"],
-                    "amount": email_data["amount"],
-                    "zone": email_data["zone"],
-                    "player_name": email_data.get("player_name", ""),
-                    "settings": settings_data,
-                }
-                
-                # Render HTML content
-                html_content = render_to_string('email/payment_reminder_email.html', context)
-                text_content = f"Hello {context.get('player_name', '')}, your remaining payment of {context.get('amount', '')} is due."
-                
-                from_email = settings.EMAIL_HOST_USER
-                
-                # Rate limiting: sleep between emails
-                if idx > 0:
-                    time.sleep(random.uniform(2.0, 4.0))  # 2-4 seconds between emails
-                
-                message = EmailMultiAlternatives(subject, text_content, from_email, [email_data["to_email"]])
+    def _send_single_email(email_data, subject, attempt=1, max_retries=10):
+        """Send a single email with retry logic"""
+        try:
+            # Build context for this email
+            context = {
+                "id": email_data.get("tx_id"),
+                "reg_id": email_data["reg_id"],
+                "amount": email_data["amount"],
+                "zone": email_data["zone"],
+                "player_name": email_data.get("player_name", ""),
+                "settings": settings_data,
+            }
+            
+            # Render HTML content
+            html_content = render_to_string('email/payment_reminder_email.html', context)
+            text_content = f"Hello {context.get('player_name', '')}, your remaining payment of {context.get('amount', '')} is due."
+            
+            from_email = settings.EMAIL_HOST_USER
+            
+            # Create fresh connection for each email to avoid connection issues
+            with get_connection() as connection:
+                message = EmailMultiAlternatives(
+                    subject, 
+                    text_content, 
+                    from_email, 
+                    [email_data["to_email"]],
+                    connection=connection
+                )
                 message.attach_alternative(html_content, "text/html")
                 message.send()
+            
+            logger.info(f"Payment reminder sent to {email_data['to_email']} (reg_id={email_data['reg_id']})")
+            return True
+            
+        except smtplib.SMTPResponseException as e:
+            if e.smtp_code == 421:
+                logger.warning(f"Rate limited at {email_data['to_email']} (attempt {attempt}/{max_retries}). Sleeping 15s...")
+                time.sleep(15)
+            else:
+                logger.error(f"SMTP error for {email_data['to_email']}: {e.smtp_code} {e.smtp_error}")
+                time.sleep(3)
+            
+            if attempt < max_retries:
+                return _send_single_email(email_data, subject, attempt + 1, max_retries)
+            else:
+                logger.error(f"Failed to send payment reminder to {email_data['to_email']} after {max_retries} attempts")
+                return False
                 
-                logger.info(f"[{idx+1}/{len(email_data_list)}] Payment reminder sent to {email_data['to_email']} (reg_id={email_data['reg_id']})")
+        except (ConnectionError, BrokenPipeError, OSError) as e:
+            logger.warning(f"Connection error for {email_data['to_email']} (attempt {attempt}/{max_retries}): {e}")
+            sleep_time = min(2 ** attempt, 30)  # Exponential backoff, max 30s
+            time.sleep(sleep_time)
+            
+            if attempt < max_retries:
+                return _send_single_email(email_data, subject, attempt + 1, max_retries)
+            else:
+                logger.error(f"Failed to send payment reminder to {email_data['to_email']} after {max_retries} attempts")
+                return False
                 
-            except smtplib.SMTPResponseException as e:
-                if e.smtp_code == 421:
-                    logger.warning(f"Rate limited at {email_data['to_email']}. Sleeping 10s...")
-                    time.sleep(10)  # Longer sleep on rate limit
-                else:
-                    logger.error(f"SMTP error for {email_data['to_email']}: {e.smtp_code} {e.smtp_error}")
-            except Exception as e:
-                logger.error(f"Failed to send payment reminder to {email_data['to_email']}: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error for {email_data['to_email']} (attempt {attempt}/{max_retries}): {e}")
+            time.sleep(3)
+            
+            if attempt < max_retries:
+                return _send_single_email(email_data, subject, attempt + 1, max_retries)
+            else:
+                logger.error(f"Failed to send payment reminder to {email_data['to_email']} after {max_retries} attempts")
+                return False
+    
+    def _send_batch():
+        logger.info(f"Starting batch payment reminder emails for {len(email_data_list)} recipients")
+        success_count = 0
+        failed_count = 0
         
-        logger.info(f"Batch payment reminder emails completed: {len(email_data_list)} processed")
+        for idx, email_data in enumerate(email_data_list):
+            logger.info(f"[{idx+1}/{len(email_data_list)}] Processing {email_data['to_email']}...")
+            
+            # Rate limiting: sleep between emails (5-8 seconds)
+            if idx > 0:
+                sleep_duration = random.uniform(5.0, 8.0)
+                logger.info(f"Sleeping {sleep_duration:.1f}s before next email...")
+                time.sleep(sleep_duration)
+            
+            # Send with retry logic
+            if _send_single_email(email_data, subject):
+                success_count += 1
+            else:
+                failed_count += 1
+        
+        logger.info(f"Batch payment reminder emails completed: {success_count} sent, {failed_count} failed out of {len(email_data_list)} total")
     
     # Submit to thread pool with error handling
     try:
-        email_executor.submit(_send_batch)
-        logger.info(f"Batch payment reminder task submitted successfully")
+        bulk_email_executor.submit(_send_batch)
+        logger.info(f"Batch payment reminder task submitted successfully to bulk_email_executor")
     except RuntimeError as e:
         logger.error(f"Failed to submit batch payment task: {e}. Executing synchronously as fallback.")
-    
+
 
 def send_batch_selection_status_emails(email_data_list, subject, settings_data):
     """
@@ -174,55 +236,104 @@ def send_batch_selection_status_emails(email_data_list, subject, settings_data):
     - settings_data (dict): General settings data
     """
     
-    def _send_batch():
-        logger.info(f"Starting batch selection status emails for {len(email_data_list)} recipients")
-        
-        for idx, email_data in enumerate(email_data_list):
-            try:
-                # Build a minimal object-like dict for templates
-                player_obj = {
-                    "player_name": email_data["player_name"],
-                    "reg_id": email_data["reg_id"],
-                    "is_selected": email_data["is_selected"],
-                    "points": email_data.get("points", 0),
-                    "zone": email_data["zone"],
-                    "category": email_data.get("category", ""),
-                }
-                
-                # Choose template based on selection status
-                if email_data["is_selected"]:
-                    html_content = render_to_string('selected.html', {"data": player_obj})
-                else:
-                    html_content = render_to_string('notSelected.html', {"data": player_obj})
-                
-                text_content = f"Hello {email_data['player_name']}, your selection status has been updated."
-                from_email = settings.EMAIL_HOST_USER
-                
-                # Rate limiting: sleep between emails
-                if idx > 0:
-                    time.sleep(random.uniform(2.0, 4.0))  # 2-4 seconds between emails
-                
-                message = EmailMultiAlternatives(subject, text_content, from_email, [email_data["to_email"]])
+    def _send_single_email(email_data, subject, attempt=1, max_retries=10):
+        """Send a single email with retry logic"""
+        try:
+            # Build a minimal object-like dict for templates
+            player_obj = {
+                "player_name": email_data["player_name"],
+                "reg_id": email_data["reg_id"],
+                "is_selected": email_data["is_selected"],
+                "points": email_data.get("points", 0),
+                "zone": email_data["zone"],
+                "category": email_data.get("category", ""),
+            }
+            
+            # Choose template based on selection status
+            if email_data["is_selected"]:
+                html_content = render_to_string('selected.html', {"data": player_obj})
+            else:
+                html_content = render_to_string('notSelected.html', {"data": player_obj})
+            
+            text_content = f"Hello {email_data['player_name']}, your selection status has been updated."
+            from_email = settings.EMAIL_HOST_USER
+            
+            # Create fresh connection for each email to avoid connection issues
+            with get_connection() as connection:
+                message = EmailMultiAlternatives(
+                    subject, 
+                    text_content, 
+                    from_email, 
+                    [email_data["to_email"]],
+                    connection=connection
+                )
                 message.attach_alternative(html_content, "text/html")
                 message.send()
+            
+            logger.info(f"Selection status sent to {email_data['to_email']} (reg_id={email_data['reg_id']})")
+            return True
+            
+        except smtplib.SMTPResponseException as e:
+            if e.smtp_code == 421:
+                logger.warning(f"Rate limited at {email_data['to_email']} (attempt {attempt}/{max_retries}). Sleeping 15s...")
+                time.sleep(15)
+            else:
+                logger.error(f"SMTP error for {email_data['to_email']}: {e.smtp_code} {e.smtp_error}")
+                time.sleep(3)
+            
+            if attempt < max_retries:
+                return _send_single_email(email_data, subject, attempt + 1, max_retries)
+            else:
+                logger.error(f"Failed to send selection status to {email_data['to_email']} after {max_retries} attempts")
+                return False
                 
-                logger.info(f"[{idx+1}/{len(email_data_list)}] Selection status sent to {email_data['to_email']} (reg_id={email_data['reg_id']})")
+        except (ConnectionError, BrokenPipeError, OSError) as e:
+            logger.warning(f"Connection error for {email_data['to_email']} (attempt {attempt}/{max_retries}): {e}")
+            sleep_time = min(2 ** attempt, 30)  # Exponential backoff, max 30s
+            time.sleep(sleep_time)
+            
+            if attempt < max_retries:
+                return _send_single_email(email_data, subject, attempt + 1, max_retries)
+            else:
+                logger.error(f"Failed to send selection status to {email_data['to_email']} after {max_retries} attempts")
+                return False
                 
-            except smtplib.SMTPResponseException as e:
-                if e.smtp_code == 421:
-                    logger.warning(f"Rate limited at {email_data['to_email']}. Sleeping 10s...")
-                    time.sleep(10)
-                else:
-                    logger.error(f"SMTP error for {email_data['to_email']}: {e.smtp_code} {e.smtp_error}")
-            except Exception as e:
-                logger.error(f"Failed to send selection status to {email_data['to_email']}: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error for {email_data['to_email']} (attempt {attempt}/{max_retries}): {e}")
+            time.sleep(3)
+            
+            if attempt < max_retries:
+                return _send_single_email(email_data, subject, attempt + 1, max_retries)
+            else:
+                logger.error(f"Failed to send selection status to {email_data['to_email']} after {max_retries} attempts")
+                return False
+    
+    def _send_batch():
+        logger.info(f"Starting batch selection status emails for {len(email_data_list)} recipients")
+        success_count = 0
+        failed_count = 0
         
-        logger.info(f"Batch selection status emails completed: {len(email_data_list)} processed")
+        for idx, email_data in enumerate(email_data_list):
+            logger.info(f"[{idx+1}/{len(email_data_list)}] Processing {email_data['to_email']}...")
+            
+            # Rate limiting: sleep between emails (5-8 seconds)
+            if idx > 0:
+                sleep_duration = random.uniform(5.0, 8.0)
+                logger.info(f"Sleeping {sleep_duration:.1f}s before next email...")
+                time.sleep(sleep_duration)
+            
+            # Send with retry logic
+            if _send_single_email(email_data, subject):
+                success_count += 1
+            else:
+                failed_count += 1
+        
+        logger.info(f"Batch selection status emails completed: {success_count} sent, {failed_count} failed out of {len(email_data_list)} total")
     
     # Submit to thread pool with error handling
     try:
-        email_executor.submit(_send_batch)
-        logger.info(f"Batch selection status task submitted successfully")
+        bulk_email_executor.submit(_send_batch)
+        logger.info(f"Batch selection status task submitted successfully to bulk_email_executor")
     except RuntimeError as e:
         logger.error(f"Failed to submit batch selection task: {e}. Executing synchronously as fallback.")
 
