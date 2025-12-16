@@ -311,6 +311,7 @@ def send_remaining_payment_mail(request):
                 "amount": payment.amount,
                 "zone": r.zone,
                 "player_name": r.player_name,
+                "season_id": settings.current_season.id,
             })
 
         # Submit batch email task to background
@@ -393,8 +394,11 @@ def send_selection_status_mail(request):
                 email_data_list=email_data_list,
                 subject=f"Your Selection Status Update for {settings.current_season.title}",
                 settings_data={
-                    "current_season_title": settings.current_season.title,
-                    "current_season_year": settings.current_season.year,
+                    "current_season": {
+                        "id": settings.current_season.id,
+                        "title": settings.current_season.title,
+                        "year": settings.current_season.year,
+                    }
                 }
             )
             messages.success(request, f"Queued {len(email_data_list)} selection status emails for background delivery!")

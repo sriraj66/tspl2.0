@@ -71,6 +71,7 @@ def send_batch_payment_reminder_emails(email_data_list, subject, settings_data):
                 "amount": email_data["amount"],
                 "zone": email_data["zone"],
                 "player_name": email_data.get("player_name", ""),
+                "season_id": email_data.get("season_id"),  # Pass season_id directly
                 "settings": settings_data,
             }
             
@@ -474,7 +475,7 @@ def send_batch_custom_emails(email_data_list, subject, html_template):
             
             # Rate limiting: sleep between emails (5-8 seconds)
             if idx > 0:
-                sleep_duration = random.uniform(3.0, 5.0)
+                sleep_duration = random.uniform(3.0, 8.0)
                 logger.info(f"Sleeping {sleep_duration:.1f}s before next email...")
                 time.sleep(sleep_duration)
             
