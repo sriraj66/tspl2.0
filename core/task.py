@@ -425,6 +425,7 @@ def send_batch_custom_emails(email_data_list, subject, html_template):
                     connection=connection
                 )
                 message.attach_alternative(rendered_html, "text/html")
+                time.sleep(random.uniform(0.5, 2.5))
                 message.send()
             
             logger.info(f"Custom bulk email sent to {email_data['to_email']}")
@@ -446,7 +447,7 @@ def send_batch_custom_emails(email_data_list, subject, html_template):
                 
         except (ConnectionError, BrokenPipeError, OSError) as e:
             logger.warning(f"Connection error for {email_data['to_email']} (attempt {attempt}/{max_retries}): {e}")
-            sleep_time = min(2 ** attempt, 15)  # Exponential backoff, max 30s
+            sleep_time = min(2 ** attempt, 60)  # Exponential backoff, max 30s
             time.sleep(sleep_time)
             
             if attempt < max_retries:
