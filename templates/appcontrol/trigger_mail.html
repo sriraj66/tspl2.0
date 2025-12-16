@@ -32,6 +32,12 @@
                 color: #721c24;
                 border: 1px solid #f5c6cb;
             }
+            .scrollable {
+                max-height: 720px;
+                overflow-y: auto;
+                border: 1px solid #ccc;
+                margin-top: 10px;
+            }
         </style>
     </head>
 
@@ -75,8 +81,10 @@
 
         {% if registrations %}
         <form method="POST">
+            <button type="submit" style="width: 100%;">Send Email</button>
             {% csrf_token %}
-            <table>
+            <div class="scrollable">
+                <table>
                 <thead>
                     <tr>
                         <th><input type="checkbox" id="select_all"></th>
@@ -102,8 +110,8 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
 
-            <button type="submit">Send Email</button>
         </form>
         {% endif %}
 

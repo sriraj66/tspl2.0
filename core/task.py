@@ -1,5 +1,5 @@
 import concurrent.futures
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from core.models import PlayerRegistration, Season
@@ -7,9 +7,24 @@ from django.conf import settings
 from django.template import Template, Context
 import csv, io
 import logging
+import smtplib
+import time, random
+import atexit
 
-email_executor = concurrent.futures.ThreadPoolExecutor(max_workers=50)
+email_executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
 csv_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+
+email_executor._shutdown = False
+csv_executor._shutdown = False
+
+# Register proper cleanup on application exit
+def cleanup_executors():
+    """Gracefully shutdown executors on application exit"""
+    logger.info("Shutting down thread pool executors...")
+    email_executor.shutdown(wait=False)
+    csv_executor.shutdown(wait=False)
+
+atexit.register(cleanup_executors)
 
 logger = logging.getLogger('core')
 
@@ -33,106 +48,183 @@ def send_success_email(subject, to, context):
 
     email_executor.submit(send_email)
 
-def send_payment_reminder_email(subject, to_email, context):
+def send_custom_email(subject, to_email, html_content, context=None, max_retries=5):
     """
-    Sends a remaining payment reminder email asynchronously.
-    
-    Parameters:
-    - subject (str): email subject
-    - to_email (str): recipient email address
-    - context (dict): template context for rendering HTML
+    Sends an email safely with retries, backoff, and throttling.
     """
-    logger.info(f"Submitting payment reminder email to {to_email}")
-
-    def _send_email():
-        try:
-            # Render HTML content from template
-            html_content = render_to_string('email/payment_reminder_email.html', context)
-            
-            # Fallback plain text content
-            text_content = f"Hello {context.get('player_name', '')}, your remaining payment of {context.get('amount', '')} is due."
-
-            from_email = settings.EMAIL_HOST_USER
-            message = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
-            message.attach_alternative(html_content, "text/html")
-            message.send()
-
-            logger.info(f"Payment reminder email sent to {to_email}")
-        except Exception as e:
-            logger.error(f"Failed to send payment reminder email to {to_email}: {e}")
-
-    # Submit the email task to the thread pool
-    email_executor.submit(_send_email)
-
-
-def send_selection_status_email(subject, to_email, context):
-    """
-    Sends a status email asynchronously depending on selection/completion.
-
-    Parameters:
-    - subject (str): email subject
-    - to_email (str): recipient email address
-    - context (dict): template context for rendering HTML
-    """
-    logger.info(f"Submitting selection status email to {to_email}")
-
-    def _send_email():
-        try:
-            # Decide template based on completion and selection
-            if context["obj"].is_selected:
-                html_content = render_to_string('selected.html', {"data": context["obj"]})
-            else:
-                html_content = render_to_string('notSelected.html', {"data": context["obj"]})
-           
-            # Fallback plain text content
-            text_content = f"Hello {context["obj"].player_name}, your selection status has been updated."
-
-            from_email = settings.EMAIL_HOST_USER
-            message = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
-            message.attach_alternative(html_content, "text/html")
-            message.send()
-
-            logger.info(f"Selection status email sent to {to_email}")
-        except Exception as e:
-            logger.error(f"Failed to send selection status email to {to_email}: {e}")
-
-    # Submit to thread pool
-    email_executor.submit(_send_email)
-
-def send_custom_email(subject, to_email, html_content, context=None):
-    """
-    Sends an email using your executor. Optionally renders HTML with context.
-    """
-    logger.info(f"Submitting bulk email to {to_email}")
 
     def _send():
-        try:
-            # Render template if context is provided
-            if context:
-                t = Template(html_content)
-                c = Context(context)
-                rendered_html = t.render(c)
-            else:
-                rendered_html = html_content
+        attempt = 0
+        while attempt < max_retries:
+            try:
+                # Render HTML template if context is provided
+                if context:
+                    t = Template(html_content)
+                    c = Context(context)
+                    rendered_html = t.render(c)
+                else:
+                    rendered_html = html_content
 
-            text_content = "You have a new notification."
+                text_content = "You have a new notification."
 
-            message = EmailMultiAlternatives(
-                subject,
-                text_content,
-                settings.EMAIL_HOST_USER,
-                [to_email],
-            )
-            message.attach_alternative(rendered_html, "text/html")
-            message.send()
+                # Use a shared connection for efficiency
+                with get_connection() as connection:
+                    time.sleep(random.uniform(0.5, 2.5))
+                    message = EmailMultiAlternatives(
+                        subject,
+                        text_content,
+                        from_email=settings.EMAIL_HOST_USER,
+                        to=[to_email],
+                        connection=connection
+                    )
+                    message.attach_alternative(rendered_html, "text/html")
+                    message.send()
 
-            logger.info(f"Bulk email sent to {to_email}")
+                logger.info(f"Email sent to {to_email}")
+                break
 
-        except Exception as e:
-            logger.error(f"Failed sending bulk email to {to_email}: {str(e)}")
+            except smtplib.SMTPResponseException as e:
+                # Gmail temporary error 421
+                if e.smtp_code == 421:
+                    attempt += 1
+                    sleep_time = 2 ** attempt 
+                    logger.warning(f"Rate limited sending to {to_email}. Retry {attempt} in {sleep_time}s...")
+                    time.sleep(sleep_time)
+                else:
+                    logger.error(f"SMTP error sending to {to_email}: {e.smtp_code} {e.smtp_error}")
+                    break
+            except Exception as e:
+                logger.error(f"Failed sending email to {to_email}: {str(e)}")
+                break
+            time.sleep(2)
 
-    email_executor.submit(_send)
+    logger.info(f"Submitting email to {to_email}")
+    try:
+        email_executor.submit(_send)
+    except Exception as e:
+        logger.error(f"Failed to submit email task for {to_email}: {e}")
 
+def send_batch_payment_reminder_emails(email_data_list, subject, settings_data):
+    """
+    Sends payment reminder emails in batches with rate limiting.
+    
+    Parameters:
+    - email_data_list (list): List of dicts with keys: to_email, reg_id, tx_id, amount, zone, player_name
+    - subject (str): Email subject
+    - settings_data (dict): General settings data (current_season_title, etc.)
+    """
+    
+    def _send_batch():
+        logger.info(f"Starting batch payment reminder emails for {len(email_data_list)} recipients")
+        
+        for idx, email_data in enumerate(email_data_list):
+            try:
+                # Build context for this email
+                context = {
+                    "id": email_data.get("tx_id"),
+                    "reg_id": email_data["reg_id"],
+                    "amount": email_data["amount"],
+                    "zone": email_data["zone"],
+                    "player_name": email_data.get("player_name", ""),
+                    "settings": settings_data,
+                }
+                
+                # Render HTML content
+                html_content = render_to_string('email/payment_reminder_email.html', context)
+                text_content = f"Hello {context.get('player_name', '')}, your remaining payment of {context.get('amount', '')} is due."
+                
+                from_email = settings.EMAIL_HOST_USER
+                
+                # Rate limiting: sleep between emails
+                if idx > 0:
+                    time.sleep(random.uniform(2.0, 4.0))  # 2-4 seconds between emails
+                
+                message = EmailMultiAlternatives(subject, text_content, from_email, [email_data["to_email"]])
+                message.attach_alternative(html_content, "text/html")
+                message.send()
+                
+                logger.info(f"[{idx+1}/{len(email_data_list)}] Payment reminder sent to {email_data['to_email']} (reg_id={email_data['reg_id']})")
+                
+            except smtplib.SMTPResponseException as e:
+                if e.smtp_code == 421:
+                    logger.warning(f"Rate limited at {email_data['to_email']}. Sleeping 10s...")
+                    time.sleep(10)  # Longer sleep on rate limit
+                else:
+                    logger.error(f"SMTP error for {email_data['to_email']}: {e.smtp_code} {e.smtp_error}")
+            except Exception as e:
+                logger.error(f"Failed to send payment reminder to {email_data['to_email']}: {e}")
+        
+        logger.info(f"Batch payment reminder emails completed: {len(email_data_list)} processed")
+    
+    # Submit to thread pool with error handling
+    try:
+        email_executor.submit(_send_batch)
+        logger.info(f"Batch payment reminder task submitted successfully")
+    except RuntimeError as e:
+        logger.error(f"Failed to submit batch payment task: {e}. Executing synchronously as fallback.")
+    
+
+def send_batch_selection_status_emails(email_data_list, subject, settings_data):
+    """
+    Sends selection status emails in batches with rate limiting.
+    
+    Parameters:
+    - email_data_list (list): List of dicts with keys: to_email, reg_id, player_name, is_selected, points, zone, category
+    - subject (str): Email subject
+    - settings_data (dict): General settings data
+    """
+    
+    def _send_batch():
+        logger.info(f"Starting batch selection status emails for {len(email_data_list)} recipients")
+        
+        for idx, email_data in enumerate(email_data_list):
+            try:
+                # Build a minimal object-like dict for templates
+                player_obj = {
+                    "player_name": email_data["player_name"],
+                    "reg_id": email_data["reg_id"],
+                    "is_selected": email_data["is_selected"],
+                    "points": email_data.get("points", 0),
+                    "zone": email_data["zone"],
+                    "category": email_data.get("category", ""),
+                }
+                
+                # Choose template based on selection status
+                if email_data["is_selected"]:
+                    html_content = render_to_string('selected.html', {"data": player_obj})
+                else:
+                    html_content = render_to_string('notSelected.html', {"data": player_obj})
+                
+                text_content = f"Hello {email_data['player_name']}, your selection status has been updated."
+                from_email = settings.EMAIL_HOST_USER
+                
+                # Rate limiting: sleep between emails
+                if idx > 0:
+                    time.sleep(random.uniform(2.0, 4.0))  # 2-4 seconds between emails
+                
+                message = EmailMultiAlternatives(subject, text_content, from_email, [email_data["to_email"]])
+                message.attach_alternative(html_content, "text/html")
+                message.send()
+                
+                logger.info(f"[{idx+1}/{len(email_data_list)}] Selection status sent to {email_data['to_email']} (reg_id={email_data['reg_id']})")
+                
+            except smtplib.SMTPResponseException as e:
+                if e.smtp_code == 421:
+                    logger.warning(f"Rate limited at {email_data['to_email']}. Sleeping 10s...")
+                    time.sleep(10)
+                else:
+                    logger.error(f"SMTP error for {email_data['to_email']}: {e.smtp_code} {e.smtp_error}")
+            except Exception as e:
+                logger.error(f"Failed to send selection status to {email_data['to_email']}: {e}")
+        
+        logger.info(f"Batch selection status emails completed: {len(email_data_list)} processed")
+    
+    # Submit to thread pool with error handling
+    try:
+        email_executor.submit(_send_batch)
+        logger.info(f"Batch selection status task submitted successfully")
+    except RuntimeError as e:
+        logger.error(f"Failed to submit batch selection task: {e}. Executing synchronously as fallback.")
 
 def process_csv_upload(data_bytes, points_bytes, season_id):
     """Process the entire CSV in a single safe background thread."""

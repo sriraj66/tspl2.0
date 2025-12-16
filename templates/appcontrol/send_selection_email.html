@@ -17,6 +17,12 @@
 
         .completed { background-color: #e6ffe6; } /* Highlight completed */
         .pending { background-color: #fff3e6; }   /* Highlight pending */
+        .scrollable {
+            max-height: 720px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -53,8 +59,11 @@
 
     {% if registrations %}
     <form method="POST">
+        <button type="submit" style="width: 100%;">Send Selection Status Emails</button>
+
         {% csrf_token %}
-        <table>
+        <div class="scrollable">
+            <table>
             <thead>
                 <tr>
                     <th><input type="checkbox" id="select_all"></th>
@@ -87,8 +96,8 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
 
-        <button type="submit">Send Selection Status Emails</button>
     </form>
     {% else %}
         <p>No players found for this season or search query.</p>

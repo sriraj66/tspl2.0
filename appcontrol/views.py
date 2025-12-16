@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from core.models import PlayerRegistration, Season, Payment, User
 from core.utils import get_general_settings
-from core.task import send_success_email, send_payment_reminder_email, send_selection_status_email, submit_csv_task, send_custom_email
+from core.task import send_success_email, send_batch_payment_reminder_emails, send_batch_selection_status_emails, submit_csv_task, send_custom_email
 from django.db.models import Q
 import pandas as pd
 
@@ -293,33 +293,40 @@ def send_remaining_payment_mail(request):
     # POST → Send emails
     if request.method == "POST":
         selected_ids = request.POST.getlist("selected_ids")
-        print(selected_ids)
         if not selected_ids:
             messages.error(request, "No players selected.")
             return redirect(request.path + f"?season_id={season_id}&q={query}")
 
+        # Collect all player data first
+        email_data_list = []
         for r in PlayerRegistration.objects.filter(id__in=selected_ids):
             payment = Payment.objects.filter(registration=r.id, user=r.user.id).order_by('-created_at').first()
             if not payment:
                 continue
-            context = {
-                "id": r.tx_id,
+            
+            email_data_list.append({
+                "to_email": r.user.email,
                 "reg_id": r.reg_id,
+                "tx_id": r.tx_id,
                 "amount": payment.amount,
                 "zone": r.zone,
-                "settings": settings
-            }
-            try:
-                send_payment_reminder_email(
-                    subject=f"Remaining Payment Due for {settings.current_season.title}",
-                    to_email=r.user.email,
-                    context=context
-                )
-                logger.info(f"[REMAINING PAYMENT MAIL SENT] reg_id={r.reg_id}")
-            except Exception as e:
-                logger.error(f"[MAIL ERROR] reg_id={r.reg_id} error={str(e)}")
+                "player_name": r.player_name,
+            })
 
-        messages.success(request, "Remaining payment mails sent successfully!")
+        # Submit batch email task to background
+        if email_data_list:
+            send_batch_payment_reminder_emails(
+                email_data_list=email_data_list,
+                subject=f"Remaining Payment Due for {settings.current_season.title}",
+                settings_data={
+                    "current_season_title": settings.current_season.title,
+                    "current_season_year": settings.current_season.year,
+                }
+            )
+            messages.success(request, f"Queued {len(email_data_list)} payment reminder emails for background delivery!")
+        else:
+            messages.warning(request, "No valid payment records found for selected players.")
+        
         return redirect(request.path + f"?season_id={season_id}&q={query}")
 
     return render(request, "appcontrol/send_remaining_payment_mail.html", {
@@ -367,23 +374,33 @@ def send_selection_status_mail(request):
             messages.error(request, "No players selected.")
             return redirect(request.path + f"?season_id={season_id}&q={query}")
 
+        # Collect all player data first
+        email_data_list = []
         for r in PlayerRegistration.objects.filter(id__in=selected_ids, is_compleated=True):
-            context = {
-                "obj": r,
-                "settings": settings
-            }
+            email_data_list.append({
+                "to_email": r.user.email,
+                "reg_id": r.reg_id,
+                "player_name": r.player_name,
+                "is_selected": r.is_selected,
+                "points": r.points,
+                "zone": r.zone,
+                "category": r.category,
+            })
 
-            try:
-                send_selection_status_email(
-                    subject=f"Your Selection Status Update for {settings.current_season.title}",
-                    to_email=r.user.email,
-                    context=context
-                )
-                logger.info(f"[SELECTION STATUS MAIL SENT] reg_id={r.reg_id}")
-            except Exception as e:
-                logger.error(f"[MAIL ERROR] reg_id={r.reg_id} error={str(e)}")
-
-        messages.success(request, "Selection status mails sent successfully!")
+        # Submit batch email task to background
+        if email_data_list:
+            send_batch_selection_status_emails(
+                email_data_list=email_data_list,
+                subject=f"Your Selection Status Update for {settings.current_season.title}",
+                settings_data={
+                    "current_season_title": settings.current_season.title,
+                    "current_season_year": settings.current_season.year,
+                }
+            )
+            messages.success(request, f"Queued {len(email_data_list)} selection status emails for background delivery!")
+        else:
+            messages.warning(request, "No valid completed registrations found for selected players.")
+        
         return redirect(request.path + f"?season_id={season_id}&q={query}")
 
     return render(request, "appcontrol/send_selection_email.html", {
