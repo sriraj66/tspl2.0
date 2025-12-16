@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from core.models import PlayerRegistration, Season, Payment, User
 from core.utils import get_general_settings
-from core.task import send_success_email, send_batch_payment_reminder_emails, send_batch_selection_status_emails, submit_csv_task, send_custom_email
+from core.task import send_success_email, send_batch_payment_reminder_emails, send_batch_selection_status_emails, submit_csv_task, send_batch_custom_emails
 from django.db.models import Q
 import pandas as pd
 
@@ -424,6 +424,8 @@ def send_bulk_mail(request):
 
         users = User.objects.filter(email__isnull=False).exclude(email="")
 
+        # Collect all user data first
+        email_data_list = []
         for user in users:
             # Pass actual user info as context
             context = {
@@ -437,18 +439,26 @@ def send_bulk_mail(request):
                 "amount": settings.current_season.amount,
                 "year": settings.current_season.year
             }
+            
+            email_data_list.append({
+                "to_email": user.email,
+                "context": context
+            })
 
-            send_custom_email(
+        # Submit batch email task to background with rate limiting
+        if email_data_list:
+            send_batch_custom_emails(
+                email_data_list=email_data_list,
                 subject=subject,
-                to_email=user.email,
-                html_content=html_content,
-                context=context
+                html_template=html_content
             )
-
-        messages.success(
-            request,
-            f"Bulk email queued for {users.count()} users! Delivery will happen shortly."
-        )
+            messages.success(
+                request,
+                f"Queued {len(email_data_list)} bulk emails for background delivery with rate limiting!"
+            )
+        else:
+            messages.warning(request, "No valid users found with email addresses.")
+        
         return redirect(request.path)
 
     return render(request, "appcontrol/send_mail.html")

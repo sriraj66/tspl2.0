@@ -51,72 +51,6 @@ def send_success_email(subject, to, context):
 
     email_executor.submit(send_email)
 
-def send_custom_email(subject, to_email, html_content, context=None, max_retries=5):
-    """
-    Sends an email safely with retries, backoff, and throttling.
-    Uses bulk_email_executor for better isolation from other email tasks.
-    """
-
-    def _send():
-        attempt = 0
-        while attempt < max_retries:
-            try:
-                # Render HTML template if context is provided
-                if context:
-                    t = Template(html_content)
-                    c = Context(context)
-                    rendered_html = t.render(c)
-                else:
-                    rendered_html = html_content
-
-                text_content = "You have a new notification."
-
-                # Use a fresh connection for each email
-                with get_connection() as connection:
-                    time.sleep(random.uniform(0.5, 2.5))
-                    message = EmailMultiAlternatives(
-                        subject,
-                        text_content,
-                        from_email=settings.EMAIL_HOST_USER,
-                        to=[to_email],
-                        connection=connection
-                    )
-                    message.attach_alternative(rendered_html, "text/html")
-                    message.send()
-
-                logger.info(f"Custom email sent to {to_email}")
-                break
-
-            except smtplib.SMTPResponseException as e:
-                # Gmail temporary error 421
-                if e.smtp_code == 421:
-                    attempt += 1
-                    sleep_time = 2 ** attempt 
-                    logger.warning(f"Rate limited sending to {to_email}. Retry {attempt} in {sleep_time}s...")
-                    time.sleep(sleep_time)
-                else:
-                    logger.error(f"SMTP error sending to {to_email}: {e.smtp_code} {e.smtp_error}")
-                    break
-            except (ConnectionError, BrokenPipeError, OSError) as e:
-                attempt += 1
-                if attempt < max_retries:
-                    sleep_time = min(2 ** attempt, 30)
-                    logger.warning(f"Connection error for {to_email} (attempt {attempt}/{max_retries}): {e}. Retrying in {sleep_time}s...")
-                    time.sleep(sleep_time)
-                else:
-                    logger.error(f"Failed sending email to {to_email} after {max_retries} attempts: {e}")
-                    break
-            except Exception as e:
-                logger.error(f"Failed sending email to {to_email}: {str(e)}")
-                break
-            time.sleep(2)
-
-    logger.info(f"Submitting custom email to {to_email}")
-    try:
-        bulk_email_executor.submit(_send)
-    except Exception as e:
-        logger.error(f"Failed to submit email task for {to_email}: {e}")
-
 def send_batch_payment_reminder_emails(email_data_list, subject, settings_data):
     """
     Sends payment reminder emails in batches with rate limiting.
@@ -206,7 +140,7 @@ def send_batch_payment_reminder_emails(email_data_list, subject, settings_data):
             
             # Rate limiting: sleep between emails (5-8 seconds)
             if idx > 0:
-                sleep_duration = random.uniform(5.0, 8.0)
+                sleep_duration = random.uniform(3.0, 5.0)
                 logger.info(f"Sleeping {sleep_duration:.1f}s before next email...")
                 time.sleep(sleep_duration)
             
@@ -457,6 +391,107 @@ def process_csv_upload(data_bytes, points_bytes, season_id):
     summary = f"Done: Players Created={created}, Updated={updated}, Users Created={user_created}"
     logger.info(summary)
     return summary
+
+
+def send_batch_custom_emails(email_data_list, subject, html_template):
+    """
+    Sends custom HTML emails in batches with rate limiting.
+    
+    Parameters:
+    - email_data_list (list): List of dicts with keys: to_email, context (dict with template variables)
+    - subject (str): Email subject
+    - html_template (str): HTML template string with Django template variables
+    """
+    
+    def _send_single_email(email_data, subject, html_template, attempt=1, max_retries=10):
+        """Send a single custom email with retry logic"""
+        try:
+            # Render HTML content with user's context
+            t = Template(html_template)
+            c = Context(email_data["context"])
+            rendered_html = t.render(c)
+            
+            text_content = "You have a new notification."
+            from_email = settings.EMAIL_HOST_USER
+            
+            # Create fresh connection for each email to avoid connection issues
+            with get_connection() as connection:
+                message = EmailMultiAlternatives(
+                    subject, 
+                    text_content, 
+                    from_email, 
+                    [email_data["to_email"]],
+                    connection=connection
+                )
+                message.attach_alternative(rendered_html, "text/html")
+                message.send()
+            
+            logger.info(f"Custom bulk email sent to {email_data['to_email']}")
+            return True
+            
+        except smtplib.SMTPResponseException as e:
+            if e.smtp_code == 421:
+                logger.warning(f"Rate limited at {email_data['to_email']} (attempt {attempt}/{max_retries}). Sleeping 15s...")
+                time.sleep(8)
+            else:
+                logger.error(f"SMTP error for {email_data['to_email']}: {e.smtp_code} {e.smtp_error}")
+                time.sleep(3)
+            
+            if attempt < max_retries:
+                return _send_single_email(email_data, subject, html_template, attempt + 1, max_retries)
+            else:
+                logger.error(f"Failed to send custom email to {email_data['to_email']} after {max_retries} attempts")
+                return False
+                
+        except (ConnectionError, BrokenPipeError, OSError) as e:
+            logger.warning(f"Connection error for {email_data['to_email']} (attempt {attempt}/{max_retries}): {e}")
+            sleep_time = min(2 ** attempt, 15)  # Exponential backoff, max 30s
+            time.sleep(sleep_time)
+            
+            if attempt < max_retries:
+                return _send_single_email(email_data, subject, html_template, attempt + 1, max_retries)
+            else:
+                logger.error(f"Failed to send custom email to {email_data['to_email']} after {max_retries} attempts")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Unexpected error for {email_data['to_email']} (attempt {attempt}/{max_retries}): {e}")
+            time.sleep(3)
+            
+            if attempt < max_retries:
+                return _send_single_email(email_data, subject, html_template, attempt + 1, max_retries)
+            else:
+                logger.error(f"Failed to send custom email to {email_data['to_email']} after {max_retries} attempts")
+                return False
+    
+    def _send_batch():
+        logger.info(f"Starting batch custom emails for {len(email_data_list)} recipients")
+        success_count = 0
+        failed_count = 0
+        
+        for idx, email_data in enumerate(email_data_list):
+            logger.info(f"[{idx+1}/{len(email_data_list)}] Processing {email_data['to_email']}...")
+            
+            # Rate limiting: sleep between emails (5-8 seconds)
+            if idx > 0:
+                sleep_duration = random.uniform(3.0, 5.0)
+                logger.info(f"Sleeping {sleep_duration:.1f}s before next email...")
+                time.sleep(sleep_duration)
+            
+            # Send with retry logic
+            if _send_single_email(email_data, subject, html_template):
+                success_count += 1
+            else:
+                failed_count += 1
+        
+        logger.info(f"Batch custom emails completed: {success_count} sent, {failed_count} failed out of {len(email_data_list)} total")
+    
+    # Submit to thread pool with error handling
+    try:
+        bulk_email_executor.submit(_send_batch)
+        logger.info(f"Batch custom email task submitted successfully to bulk_email_executor")
+    except RuntimeError as e:
+        logger.error(f"Failed to submit batch custom email task: {e}. Executing synchronously as fallback.")
 
 
 def submit_csv_task(data_bytes, points_bytes, season_id):
