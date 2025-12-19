@@ -8,11 +8,11 @@
     <div class="owl-carousel banner-carousel">
 
         <div class="banner-img banner-img-1">
-           <img src="{% static 'assets/images/banner.png' %}" alt="">
+            <img src="{% static 'assets/images/banner.png' %}" alt="">
         </div>
     </div>
 
-    
+
 </section>
 
 <section class="about-detail counter-section">
@@ -23,17 +23,30 @@
                 <img src="{% static 'assets/images/rb_46231.png' %}" width="100%" alt="">
             </div>
             <div class=" col-lg-6 col-md-12 order-0 order-lg-1">
-                <h5 class="main-subtitle wow fadeInUp" data-wow-delay="0.3s">About Company</h5>
+                <h5 class="main-subtitle wow " >About Company</h5>
 
-                <h4 class="main-title wow fadeInUp" data-wow-delay="0.4s">Transforming Tamilnadu Tennisball Cricket: The Rise
-                    of TSPL<b style="font-weight: 600; font-size:large;">(Filtering The Best Players And Teams in TN)</b></h4>
-                <p class="about-text wow fadeInUp" data-wow-delay="0.5s">Tamizhan Street Premier League (TSPL) is a premier sports organization committed to advancing Tennisball Cricket throughout Tamilnadu, TSPL aims to create a thriving platform for aspiring Players,providing avenues for skill development, competitive play, and community engagement.
-                    <b>Tamizhan Street Premier League (TSPL), forming a team for our TN to compete at the Pan India level.</b>
-                    The Registration can done Allover from (TN)Tamil Nadu <b style="color: rgb(51, 49, 49);">NOTE:Only For (TN)Tamil Nadu Players.</b>
-                     <br> At the heart of TSPL Our Vision to inspire the youth and celebrate the spirit of Cricketer's.</p>
-                <!-- <p class="mt-4 banner-btn wow fadeInUp" data-wow-delay="0.7s">
-                    <a href="{% url 'points_table' %}" class="fancy-button w-100 text-center">Points Table</a>
-                </p> -->
+                <h4 class="main-title wow " >Transforming Tamilnadu Tennisball Cricket: The
+                    Rise
+                    of TSPL<b style="font-weight: 600; font-size:large;">(Filtering The Best Players And Teams in
+                        TN)</b></h4>
+                <p class="about-text wow " >Tamizhan Street Premier League (TSPL) is a
+                    premier sports organization committed to advancing Tennisball Cricket throughout Tamilnadu, TSPL
+                    aims to create a thriving platform for aspiring Players,providing avenues for skill development,
+                    competitive play, and community engagement.
+                    <b>Tamizhan Street Premier League (TSPL), forming a team for our TN to compete at the Pan India
+                        level.</b>
+                    The Registration can done Allover from (TN)Tamil Nadu <b style="color: rgb(51, 49, 49);">NOTE:Only
+                        For (TN)Tamil Nadu Players.</b>
+                    <br> At the heart of TSPL Our Vision to inspire the youth and celebrate the spirit of Cricketer's.
+                </p>
+                {% if settings and settings.enable_registration and settings.current_season %}
+                <a href="{% url 'register_form' settings.current_season.id %}" class="fancy-button  w-100 text-center mt-3">
+                    <b>Register Now</b>
+                </a>
+                {% endif %}
+                {% if settings and settings.show_points_table %}
+                <a href="{% url 'points_table' %}" class="fancy-button mt-3 w-100 text-center"><b>Points Table</b></a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -59,7 +72,8 @@
                     empower one another. Together, they create an environment where innovation thrives,
                     relationships are built, and
                     collective goals are achieved.</p>
-                <p class="mt-4"><a href="{% url 'commitie' %}" class="fancy-button text-center w-100"><span>All Members</span></a></p>
+                <p class="mt-4"><a href="{% url 'commitie' %}" class="fancy-button text-center w-100"><span>All
+                            Members</span></a></p>
             </div>
             <div class="col-lg-6 col-md-6">
                 <div class="ms-lg-5">
@@ -67,8 +81,10 @@
                         <div class="col-6">
                             <div class="team-card">
                                 <div class="team-img">
-                                    <a data-fancybox="gallery" href="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee1.jpeg' %}">
-                                    <img src="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee1.jpeg' %}" alt=""></a>
+                                    <a data-fancybox="gallery"
+                                        href="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee1.jpeg' %}">
+                                        <img src="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee1.jpeg' %}"
+                                            alt=""></a>
                                     <span style="color: black;font-size:large;"><b>S.Mohamed Riyas</b></span>
                                 </div>
                             </div>
@@ -76,8 +92,10 @@
                         <div class="col-6">
                             <div class="team-card mt-5">
                                 <div class="team-img">
-                                    <a data-fancybox="gallery" href="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee2.jpeg' %}">
-                                    <img src="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee2.jpeg' %}" alt=""></a>
+                                    <a data-fancybox="gallery"
+                                        href="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee2.jpeg' %}">
+                                        <img src="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee2.jpeg' %}"
+                                            alt=""></a>
                                     <span style="color: black;font-size:large;"><b>J.Tharic Ajiz</b></span>
                                 </div>
                             </div>
@@ -85,8 +103,10 @@
                         <div class="col-6">
                             <div class="team-card mt-4">
                                 <div class="team-img">
-                                    <a data-fancybox="gallery" href="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee3.jpeg' %}">
-                                    <img src="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee3.jpeg' %}" alt=""></a>
+                                    <a data-fancybox="gallery"
+                                        href="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee3.jpeg' %}">
+                                        <img src="{% static 'assets/images/team,owner,iconplayer logo/commitee/commitee3.jpeg' %}"
+                                            alt=""></a>
                                     <span style="color: black;font-size:large; "><b>Karthick Rajan</b></span>
                                 </div>
                             </div>
@@ -112,8 +132,10 @@
                             <img src="{% static 'assets/images/gallery/img-0.webp' %}" alt="">
                             <div class="card-content">
                                 <!-- <p class="card-text">June 19, 2023</p> -->
-                                 <!-- For SEO -->
-                                <h5 class="card-title">Tennis Ball Cricket <a class="text-white" style="font-size: 8px; text-decoration: underline;" href="{% url 'tennies_ball_cricket' %}">Read More</a> </h5>
+                                <!-- For SEO -->
+                                <h5 class="card-title">Tennis Ball Cricket <a class="text-white"
+                                        style="font-size: 8px; text-decoration: underline;"
+                                        href="{% url 'tennies_ball_cricket' %}">Read More</a> </h5>
                             </div>
                         </div>
                     </div>
@@ -144,8 +166,10 @@
                                         </div>
                                         <div class="col-8">
                                             <!-- <p class="card-text">Aug 24, 2023</p> -->
-                                            <h5 class="card-title">Indian Street Premier League (ISPL) 2025: Teams & Players Revealed</h5>
-                                            <p class="read-link"><a href="{% url 'ispl_player_revealed' %}">Read More</a></p>
+                                            <h5 class="card-title">Indian Street Premier League (ISPL) 2025: Teams &
+                                                Players Revealed</h5>
+                                            <p class="read-link"><a href="{% url 'ispl_player_revealed' %}">Read
+                                                    More</a></p>
                                         </div>
                                     </div>
                                 </div>
@@ -161,7 +185,8 @@
                                         <div class="col-8">
                                             <!-- <p class="card-text">Sep 11, 2023</p> -->
                                             <h5 class="card-title">Own a TSPL Franchise Team</h5>
-                                            <p class="read-link"><a href="{% url 'own_tspl_franchise' %}">Read More</a></p>
+                                            <p class="read-link"><a href="{% url 'own_tspl_franchise' %}">Read More</a>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

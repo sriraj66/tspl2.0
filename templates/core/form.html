@@ -65,12 +65,12 @@
                         {{settings.current_season.title}} - {{settings.current_season.year}}
                     </h5>
                     <ul class="register-list">
-                        <li>1.<b>Trails Date :</b> {{settings.current_season.start_date}}</li>
-                        <li>3.<b>Team Registration fees :</b> Rs. {{settings.current_season.amount}}/-</li>
-                        <li>4.<b>Franchise fees :</b> Rs. 15000/-</li>
+                        <!-- <li>1.<b>Trails Date :</b> {{settings.current_season.start_date}}</li> -->
+                        <li><b>Team Registration fees :</b> Rs. {{settings.current_season.amount}}/-</li>
+                        <!-- <li>4.<b>Franchise fees :</b> Rs. 15000/-</li> -->
 
                         <li>
-                            5.<b>Player Photo</b><br>
+                            <b>Player Photo</b><br>
                             *Update New and clear Photo <br>
                             No Selfi or photo attached with trophy or any other objects not permitted<br>
                             Model as given Below<br>
@@ -79,7 +79,7 @@
                         </li>
 
                         <li>
-                            6.<b>ID for address Prof</b><br>
+                            <b>ID for address Prof</b><br>
                             For location confirmation. Fake data = rejection.
                         </li>
                     </ul>
@@ -140,6 +140,40 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
 
 <script>
+    let email_field = document.getElementById("id_email");
+    let user_email = "{{ user.email }}";
+
+    if (email_field && user_email) {
+        email_field.value = user_email;
+        email_field.readOnly = true;
+    }
+
+    document.getElementById("id_pin_code").setAttribute("min", "100000");
+    document.getElementById("id_pin_code").setAttribute("max", "999999");
+    document.getElementById("id_pin_code").addEventListener("invalid", function() {
+        alert("Please enter a valid PIN Code");
+    });
+    document.getElementById("id_adhar_card").setAttribute("min", "100000000000");
+    document.getElementById("id_adhar_card").setAttribute("max", "999999999999");
+    document.getElementById("id_adhar_card").addEventListener("invalid", function() {
+        alert("Please enter a valid Aadhar Card Number");
+    });
+    document.getElementById("id_mobile").setAttribute("min", "1000000000");
+    document.getElementById("id_mobile").setAttribute("max", "9999999999");
+    document.getElementById("id_mobile").addEventListener("invalid", function() {
+        alert("Please enter a valid 10-digit Mobile Number");
+    });
+    document.getElementById("id_wathsapp_number").setAttribute("min", "1000000000");
+    document.getElementById("id_wathsapp_number").setAttribute("max", "9999999999");
+    document.getElementById("id_wathsapp_number").addEventListener("invalid", function() {
+        alert("Please enter a valid 10-digit WhatsApp Number");
+    });
+    document.getElementById("id_age").setAttribute("min", "5");
+    document.getElementById("id_age").setAttribute("max", "60");
+    document.getElementById("id_age").addEventListener("invalid", function() {
+        alert("Please enter a valid age between 5 and 60.");
+    });
+
     /* Your same JS — unchanged */
     document.addEventListener("DOMContentLoaded", function () {
 
@@ -210,7 +244,13 @@
                 }
                 compress();
             }, "image/jpeg", 0.9);
+        
         });
+        
+        if(document.getElementById("id_player_image").style.display == "none"){
+            document.getElementById("id_player_image").parentElement.style.display = "none";
+        }
+
     });
 </script>
 

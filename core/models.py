@@ -62,6 +62,8 @@ class PlayerRegistration(models.Model):
     email = models.EmailField(verbose_name='Email Address')
     adhar_card = models.CharField(max_length=12, verbose_name="Adhar Card")
     player_image = models.ImageField(upload_to='player_images/', verbose_name='Player Image')
+
+    social_media_link = models.CharField(max_length=255, default="", verbose_name="Social Media Profile")
     
     district = models.CharField(max_length=100,choices=DISTRICT_CHOICES, verbose_name='District')
     
