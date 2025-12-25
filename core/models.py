@@ -2,6 +2,8 @@ from django.db import models
 import uuid
 from .constants import *
 from django.contrib.auth.models import User
+import logging
+logger = logging.getLogger('core')
 
 class Season(models.Model):
     
@@ -165,6 +167,15 @@ import datetime
 @receiver(pre_save, sender=PlayerRegistration)
 def generate_user_id(sender, instance, **kwargs):
     if not instance.reg_id:
+        # Check if Existing Registration ID
+        try:
+            last_registration = sender.objects.filter(user=instance.user).exclude(season=instance.season).order_by('-created').first()
+            if last_registration:
+                instance.reg_id = last_registration.reg_id
+                return
+        except Exception as e:
+            logger.error(f"Error fetching last registration: {e}")
+            
         current_date = datetime.datetime.now()
         month = current_date.strftime('%m')
         year = current_date.strftime('%y')

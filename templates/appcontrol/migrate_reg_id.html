@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migrate Registration</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        select,
+        input[type="file"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+
+        input[type="submit"] {
+            background: #007bff;
+            color: white;
+            border: none;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background: #0056b3;
+        }
+
+        .messages {
+            margin-bottom: 15px;
+        }
+
+        .messages div {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h2>Welcome {{user.username}},</h2>
+        <ul>
+            <li><a href="{% url 'con_index' %}">Index</a></li>
+        </ul>
+        <h2>Migrate Registration Ids</h2>
+
+        <!-- Django Messages -->
+        <div class="messages">
+            {% for message in messages %}
+            <div class="{% if message.tags %}{{message.tags}}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <label for="season"><b>FROM</b> Season</label>
+            <select name="season_a" id="season" required>
+                {% for s in seasons %}
+                <option value="{{s.id}}">{{s.title}} - {{s.year}}</option>
+                {% endfor %}
+            </select>
+
+            <label for="season"><b>TO</b> Season</label>
+            <select name="season_b" id="season" required>
+                {% for s in seasons %}
+                <option value="{{s.id}}">{{s.title}} - {{s.year}}</option>
+                {% endfor %}
+            </select>
+
+            <input type="submit" value="Migrate">
+        </form>
+
+    </div>
+
+</body>
+
+</html>

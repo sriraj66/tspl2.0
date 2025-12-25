@@ -51,6 +51,11 @@
 
         <input type="text" name="q" placeholder="Search Reg ID / User / Player"
             value="{{ request.GET.q }}" style="margin-left:20px;">
+        <select name="is_compleated" style="margin-left:20px;">
+            <option value="">Is Patyment Compleated (All)</option>
+            <option value="yes" {% if request.GET.is_compleated == "yes" %}selected{% endif %}>Yes</option>
+            <option value="no" {% if request.GET.is_compleated == "no" %}selected{% endif %}>No</option>
+        </select>
         <button type="submit">Apply</button>
     </form>
 

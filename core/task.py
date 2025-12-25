@@ -14,10 +14,12 @@ import atexit
 email_executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
 bulk_email_executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
 csv_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+common_executor = concurrent.futures.ThreadPoolExecutor(max_workers=5)
 
 email_executor._shutdown = False
 csv_executor._shutdown = False
 bulk_email_executor._shutdown = False
+common_executor._shutdown = False
 
 # Register proper cleanup on application exit
 def cleanup_executors():
@@ -26,6 +28,7 @@ def cleanup_executors():
     email_executor.shutdown(wait=False)
     csv_executor.shutdown(wait=False)
     bulk_email_executor.shutdown(wait=False)
+    common_executor.shutdown(wait=False)
 
 atexit.register(cleanup_executors)
 
@@ -500,3 +503,23 @@ def submit_csv_task(data_bytes, points_bytes, season_id):
     """Submit CSV processing job to the single-thread executor."""
     return csv_executor.submit(process_csv_upload, data_bytes, points_bytes, season_id)
 
+
+def reg_id_migration(a,b):
+    updated_count = 0
+    reg_a = PlayerRegistration.objects.filter(season=a)
+    reg_b = PlayerRegistration.objects.filter(season=b)
+    reg_a_map = {reg.user.id: reg.reg_id for reg in reg_a}
+    
+    for reg in reg_b:
+        if reg.user.id in reg_a_map:
+            old_reg_id = reg.reg_id
+            reg.reg_id = reg_a_map[reg.user.id]
+            reg.save()
+            updated_count += 1
+            logger.info(f"Updated reg_id for user_id={reg.user.id} from {old_reg_id} to {reg.reg_id}")
+    logger.info(f"Total registrations updated: {updated_count}")
+    return updated_count
+    
+def reg_id_migration_task(a,b):
+    
+    return csv_executor.submit(reg_id_migration,a,b)

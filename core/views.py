@@ -182,6 +182,8 @@ def register_form(request, id):
             form = PlayerRegistrationForm(request.POST, request.FILES)
             if form.is_valid():
                 registration = form.save(commit=False)
+                if last_registration:
+                    registration.reg_id = last_registration.reg_id
                 registration.user = user
                 registration.season = season
                 registration.save()

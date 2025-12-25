@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from core.models import PlayerRegistration, Season, Payment, User
 from core.utils import get_general_settings
-from core.task import send_success_email, send_batch_payment_reminder_emails, send_batch_selection_status_emails, submit_csv_task, send_batch_custom_emails
+from core.task import send_success_email, send_batch_payment_reminder_emails, send_batch_selection_status_emails,reg_id_migration_task, submit_csv_task, send_batch_custom_emails
 from django.db.models import Q
 import pandas as pd
 
@@ -268,7 +268,7 @@ def send_remaining_payment_mail(request):
 
     season_id = request.GET.get("season_id")
     query = request.GET.get("q", "")
-
+    is_compleated = request.GET.get("is_compleated", "")
     if season_id:
         regs = PlayerRegistration.objects.filter(
             season=season_id
@@ -280,7 +280,11 @@ def send_remaining_payment_mail(request):
                 Q(user__username__icontains=query) |
                 Q(player_name__icontains=query)
             )
-
+        if is_compleated == "yes":
+            regs = regs.filter(is_compleated=True)
+        elif is_compleated == "no":
+            regs = regs.filter(is_compleated=False)
+            
         # Attach payment info to each registration
         registrations = []
         for r in regs:
@@ -468,5 +472,35 @@ def send_bulk_mail(request):
     return render(request, "appcontrol/send_mail.html")
 
 
+def migrate_reg_ids(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Invalid Access")
+
+    if request.method == "POST":
+        season_a = request.POST.get("season_a", "").strip()
+        season_b = request.POST.get("season_b", "").strip()
+        if not season_a or not season_b or season_a == season_b:
+            messages.error(request,"Both Registration IDs are required and not be same.")
+            return redirect("con_migrate_reg_ids")
+        try:
+            season_a = Season.objects.get(id=season_a)
+        except Season.DoesNotExist:
+            messages.error(request, "Invalid Season A.")
+            return redirect("con_migrate_reg_ids")
+            
+        try:
+            season_b = Season.objects.get(id=season_b)
+        except Season.DoesNotExist:
+            messages.error(request, "Invalid Season B.")
+            return redirect("con_migrate_reg_ids")
+        
+        reg_id_migration_task(season_a, season_b)
+        logger.info(f"Reg ID migration task submitted for seasons {season_a} and {season_b}")
+        messages.success(request, "Registration ID migration task submitted for background processing.")
+    
+    return render(request, "appcontrol/migrate_reg_id.html", {
+        "seasons": Season.objects.all()
+    })
+    
 
 
